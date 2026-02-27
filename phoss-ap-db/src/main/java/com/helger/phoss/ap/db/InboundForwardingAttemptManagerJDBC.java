@@ -39,34 +39,40 @@ public class InboundForwardingAttemptManagerJDBC extends AbstractAPJDBCManager
     super (aTimestampMgr);
   }
 
-  @NonNull
-  public IInboundForwardingAttempt create (@NonNull final String sInboundTransactionID,
-                                           @NonNull final EAttemptStatus eAttemptStatus,
-                                           @Nullable final String sErrorCode,
-                                           @Nullable final String sErrorDetails)
+  @Nullable
+  public String create (@NonNull final String sInboundTransactionID,
+                        @NonNull final EAttemptStatus eAttemptStatus,
+                        @Nullable final String sErrorCode,
+                        @Nullable final String sErrorDetails)
   {
     final String sID = createUniqueRowID ();
     final OffsetDateTime aNow = now ();
 
-    newExecutor ().insertOrUpdateOrDelete ("INSERT INTO inbound_forwarding_attempt (" +
-                                           COLS +
-                                           ")" +
-                                           " VALUES (?,?,?,?,?,?)",
-                                           new ConstantPreparedStatementDataProvider (sID,
-                                                                                      sInboundTransactionID,
-                                                                                      aNow,
-                                                                                      eAttemptStatus.getID (),
-                                                                                      sErrorCode,
-                                                                                      sErrorDetails));
-
-    final ICommonsList <DBResultRow> aRows = newExecutor ().queryAll ("SELECT " +
+    final long nRowsAffected = newExecutor ().insertOrUpdateOrDelete ("INSERT INTO inbound_forwarding_attempt (" +
                                                                       COLS +
-                                                                      " FROM inbound_forwarding_attempt" +
-                                                                      " WHERE id=?",
-                                                                      new ConstantPreparedStatementDataProvider (sID));
-    if (aRows != null && aRows.size () == 1)
-      return new InboundForwardingAttemptRow (aRows.getFirstOrNull ());
-    return null;
+                                                                      ")" +
+                                                                      " VALUES (?,?,?,?,?,?)",
+                                                                      new ConstantPreparedStatementDataProvider (sID,
+                                                                                                                 sInboundTransactionID,
+                                                                                                                 aNow,
+                                                                                                                 eAttemptStatus.getID (),
+                                                                                                                 sErrorCode,
+                                                                                                                 sErrorDetails));
+    return nRowsAffected == 0 ? null : sID;
+  }
+
+  @Nullable
+  public String createSuccess (@NonNull final String sInboundTransactionID)
+  {
+    return create (sInboundTransactionID, EAttemptStatus.SUCCESS, null, null);
+  }
+
+  @Nullable
+  public String createFailure (@NonNull final String sInboundTransactionID,
+                               @Nullable final String sErrorCode,
+                               @Nullable final String sErrorDetails)
+  {
+    return create (sInboundTransactionID, EAttemptStatus.FAILED, sErrorCode, sErrorDetails);
   }
 
   @NonNull

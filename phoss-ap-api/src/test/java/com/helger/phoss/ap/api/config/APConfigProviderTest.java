@@ -25,27 +25,27 @@ import com.helger.config.ConfigFactory;
 import com.helger.config.fallback.ConfigWithFallback;
 
 /**
- * Test class for class {@link APConfiguration}.
+ * Test class for class {@link APConfigProvider}.
  *
  * @author Philip Helger
  */
-public final class APConfigurationTest
+public final class APConfigProviderTest
 {
   @Test
   public void testBasic ()
   {
-    final var aOldConfig = APConfiguration.getConfig ();
+    final var aOldConfig = APConfigProvider.getConfig ();
     assertNotNull (aOldConfig);
 
     try
     {
       final var aNewConfig = new ConfigWithFallback (ConfigFactory.createDefaultValueProvider ());
-      APConfiguration.setConfig (aNewConfig);
-      assertSame (aNewConfig, APConfiguration.getConfig ());
+      APConfigProvider.setConfig (aNewConfig);
+      assertSame (aNewConfig, APConfigProvider.getConfig ());
     }
     finally
     {
-      APConfiguration.setConfig (aOldConfig);
+      APConfigProvider.setConfig (aOldConfig);
     }
   }
 }

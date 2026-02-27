@@ -40,6 +40,7 @@ public final class APConfigurationProperties
   public static final String PEPPOL_STAGE = "peppol.stage";
   public static final String PEPPOL_SEATID = "peppol.seatid";
   public static final String PEPPOL_OWNER_COUNTRYCODE = "peppol.owner.countrycode";
+  public static final String PEPPOL_OWNER_COUNTRYCODE_DEFAULT = "XX";
   public static final String PEPPOL_SENDING_ENABLED = "peppol.sending.enabled";
   public static final boolean PEPPOL_SENDING_ENABLED_DEFAULT = true;
   public static final String PEPPOL_RECEIVING_ENABLED = "peppol.receiving.enabled";

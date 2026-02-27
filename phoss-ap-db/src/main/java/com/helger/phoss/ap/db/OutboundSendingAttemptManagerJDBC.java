@@ -40,40 +40,32 @@ public class OutboundSendingAttemptManagerJDBC extends AbstractAPJDBCManager
     super (aTimestampMgr);
   }
 
-  @NonNull
-  public IOutboundSendingAttempt create (@NonNull final String sOutboundTransactionID,
-                                         @NonNull final String sAS4MessageID,
-                                         @NonNull final OffsetDateTime aAS4Timestamp,
-                                         @Nullable final String sReceiptMessageID,
-                                         @Nullable final Integer aHttpStatusCode,
-                                         @NonNull final EAttemptStatus eAttemptStatus,
-                                         @Nullable final String sErrorDetails)
+  @Nullable
+  public String create (@NonNull final String sOutboundTransactionID,
+                        @NonNull final String sAS4MessageID,
+                        @NonNull final OffsetDateTime aAS4Timestamp,
+                        @Nullable final String sReceiptMessageID,
+                        @Nullable final Integer aHttpStatusCode,
+                        @NonNull final EAttemptStatus eAttemptStatus,
+                        @Nullable final String sErrorDetails)
   {
     final String sID = createUniqueRowID ();
     final OffsetDateTime aNow = now ();
 
-    newExecutor ().insertOrUpdateOrDelete ("INSERT INTO outbound_sending_attempt (" +
-                                           COLS +
-                                           ")" +
-                                           " VALUES (?,?,?,?,?,?,?,?,?)",
-                                           new ConstantPreparedStatementDataProvider (sID,
-                                                                                      sOutboundTransactionID,
-                                                                                      sAS4MessageID,
-                                                                                      aAS4Timestamp,
-                                                                                      sReceiptMessageID,
-                                                                                      aHttpStatusCode,
-                                                                                      aNow,
-                                                                                      eAttemptStatus.getID (),
-                                                                                      sErrorDetails));
-
-    final ICommonsList <DBResultRow> aRows = newExecutor ().queryAll ("SELECT " +
+    final long nRowsAffected = newExecutor ().insertOrUpdateOrDelete ("INSERT INTO outbound_sending_attempt (" +
                                                                       COLS +
-                                                                      " FROM outbound_sending_attempt" +
-                                                                      " WHERE id=?",
-                                                                      new ConstantPreparedStatementDataProvider (sID));
-    if (aRows != null && aRows.size () == 1)
-      return new OutboundSendingAttemptRow (aRows.getFirstOrNull ());
-    return null;
+                                                                      ")" +
+                                                                      " VALUES (?,?,?,?,?,?,?,?,?)",
+                                                                      new ConstantPreparedStatementDataProvider (sID,
+                                                                                                                 sOutboundTransactionID,
+                                                                                                                 sAS4MessageID,
+                                                                                                                 aAS4Timestamp,
+                                                                                                                 sReceiptMessageID,
+                                                                                                                 aHttpStatusCode,
+                                                                                                                 aNow,
+                                                                                                                 eAttemptStatus.getID (),
+                                                                                                                 sErrorDetails));
+    return nRowsAffected == 0 ? null : sID;
   }
 
   @NonNull

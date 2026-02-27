@@ -62,20 +62,20 @@ public class OutboundTransactionManagerJDBC extends AbstractAPJDBCManager implem
     super (aTimestampMgr);
   }
 
-  @NonNull
-  public IOutboundTransaction create (@NonNull final ETransactionType eTransactionType,
-                                      @NonNull final String sSenderID,
-                                      @NonNull final String sReceiverID,
-                                      @NonNull final String sDocTypeID,
-                                      @NonNull final String sProcessID,
-                                      @NonNull final String sSbdhInstanceID,
-                                      @NonNull final ESourceType eSourceType,
-                                      final byte @NonNull [] aDocumentBytes,
-                                      @Nonnegative final long nDocumentSize,
-                                      @NonNull final String sDocumentHash,
-                                      @NonNull final String sC1CountryCode,
-                                      @Nullable final String sMlsTo,
-                                      @Nullable final String sMlsInboundTransactionID)
+  @Nullable
+  public String create (@NonNull final ETransactionType eTransactionType,
+                        @NonNull final String sSenderID,
+                        @NonNull final String sReceiverID,
+                        @NonNull final String sDocTypeID,
+                        @NonNull final String sProcessID,
+                        @NonNull final String sSbdhInstanceID,
+                        @NonNull final ESourceType eSourceType,
+                        final byte @NonNull [] aDocumentBytes,
+                        @Nonnegative final long nDocumentSize,
+                        @NonNull final String sDocumentHash,
+                        @NonNull final String sC1CountryCode,
+                        @Nullable final String sMlsTo,
+                        @Nullable final String sMlsInboundTransactionID)
   {
     final String sID = createUniqueRowID ();
     final OffsetDateTime aNow = now ();
@@ -113,7 +113,7 @@ public class OutboundTransactionManagerJDBC extends AbstractAPJDBCManager implem
     if (LOGGER.isDebugEnabled ())
       LOGGER.debug ("Stored new outbound transaction in DB. " + nRowsAffected + " rows affected.");
 
-    return getByID (sID);
+    return nRowsAffected == 0 ? null : sID;
   }
 
   @Nullable

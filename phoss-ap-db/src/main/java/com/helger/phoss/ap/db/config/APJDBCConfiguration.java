@@ -21,7 +21,7 @@ import org.jspecify.annotations.Nullable;
 
 import com.helger.annotation.concurrent.Immutable;
 import com.helger.config.fallback.IConfigWithFallback;
-import com.helger.phoss.ap.api.config.APConfiguration;
+import com.helger.phoss.ap.api.config.APConfigProvider;
 import com.helger.phoss.ap.api.config.APConfigurationProperties;
 
 /**
@@ -38,7 +38,7 @@ public final class APJDBCConfiguration
   @NonNull
   private static IConfigWithFallback _getConfig ()
   {
-    return APConfiguration.getConfig ();
+    return APConfigProvider.getConfig ();
   }
 
   @Nullable

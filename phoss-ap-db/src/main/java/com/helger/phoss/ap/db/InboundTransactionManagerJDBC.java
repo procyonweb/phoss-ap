@@ -54,65 +54,65 @@ public class InboundTransactionManagerJDBC extends AbstractAPJDBCManager impleme
     super (aTimestampMgr);
   }
 
-  @NonNull
-  public IInboundTransaction create (@NonNull final String sIncomingID,
-                                     @NonNull final String sC2SeatID,
-                                     @NonNull final String sC3SeatID,
-                                     @NonNull final String sSigningCertCN,
-                                     @NonNull final String sSenderID,
-                                     @NonNull final String sReceiverID,
-                                     @NonNull final String sDocTypeID,
-                                     @NonNull final String sProcessID,
-                                     final byte @NonNull [] aDocumentBytes,
-                                     @Nonnegative final long nDocumentSize,
-                                     @NonNull final String sDocumentHash,
-                                     @NonNull final String sAS4MessageID,
-                                     @NonNull final OffsetDateTime aAS4Timestamp,
-                                     @NonNull final String sSbdhInstanceID,
-                                     final boolean bIsDuplicateAS4,
-                                     final boolean bIsDuplicateSBDH,
-                                     @Nullable final String sMlsTo,
-                                     @NonNull final EPeppolMLSType eMlsType)
+  @Nullable
+  public String create (@NonNull final String sIncomingID,
+                        @NonNull final String sC2SeatID,
+                        @NonNull final String sC3SeatID,
+                        @NonNull final String sSigningCertCN,
+                        @NonNull final String sSenderID,
+                        @NonNull final String sReceiverID,
+                        @NonNull final String sDocTypeID,
+                        @NonNull final String sProcessID,
+                        final byte @NonNull [] aDocumentBytes,
+                        @Nonnegative final long nDocumentSize,
+                        @NonNull final String sDocumentHash,
+                        @NonNull final String sAS4MessageID,
+                        @NonNull final OffsetDateTime aAS4Timestamp,
+                        @NonNull final String sSbdhInstanceID,
+                        final boolean bIsDuplicateAS4,
+                        final boolean bIsDuplicateSBDH,
+                        @Nullable final String sMlsTo,
+                        @NonNull final EPeppolMLSType eMlsType)
   {
     final String sID = createUniqueRowID ();
     final OffsetDateTime aNow = now ();
 
     final DBExecutor aExecutor = newExecutor ();
-    aExecutor.insertOrUpdateOrDelete ("INSERT INTO inbound_transaction (" +
-                                      COLS +
-                                      ")" +
-                                      " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                                      new ConstantPreparedStatementDataProvider (sID,
-                                                                                 sIncomingID,
-                                                                                 sC2SeatID,
-                                                                                 sC3SeatID,
-                                                                                 sSigningCertCN,
-                                                                                 sSenderID,
-                                                                                 sReceiverID,
-                                                                                 sDocTypeID,
-                                                                                 sProcessID,
-                                                                                 aDocumentBytes,
-                                                                                 Long.valueOf (nDocumentSize),
-                                                                                 sDocumentHash,
-                                                                                 sAS4MessageID,
-                                                                                 aAS4Timestamp,
-                                                                                 sSbdhInstanceID,
-                                                                                 null,
-                                                                                 Boolean.valueOf (bIsDuplicateAS4),
-                                                                                 Boolean.valueOf (bIsDuplicateSBDH),
-                                                                                 EInboundStatus.RECEIVED.getID (),
-                                                                                 Integer.valueOf (0),
-                                                                                 aNow,
-                                                                                 null,
-                                                                                 EReportingStatus.PENDING.getID (),
-                                                                                 null,
-                                                                                 null,
-                                                                                 sMlsTo,
-                                                                                 eMlsType.getID (),
-                                                                                 null,
-                                                                                 null));
+    final long nRowsAffected = aExecutor.insertOrUpdateOrDelete ("INSERT INTO inbound_transaction (" +
+                                                                 COLS +
+                                                                 ")" +
+                                                                 " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                                                                 new ConstantPreparedStatementDataProvider (sID,
+                                                                                                            sIncomingID,
+                                                                                                            sC2SeatID,
+                                                                                                            sC3SeatID,
+                                                                                                            sSigningCertCN,
+                                                                                                            sSenderID,
+                                                                                                            sReceiverID,
+                                                                                                            sDocTypeID,
+                                                                                                            sProcessID,
+                                                                                                            aDocumentBytes,
+                                                                                                            Long.valueOf (nDocumentSize),
+                                                                                                            sDocumentHash,
+                                                                                                            sAS4MessageID,
+                                                                                                            aAS4Timestamp,
+                                                                                                            sSbdhInstanceID,
+                                                                                                            null,
+                                                                                                            Boolean.valueOf (bIsDuplicateAS4),
+                                                                                                            Boolean.valueOf (bIsDuplicateSBDH),
+                                                                                                            EInboundStatus.RECEIVED.getID (),
+                                                                                                            Integer.valueOf (0),
+                                                                                                            aNow,
+                                                                                                            null,
+                                                                                                            EReportingStatus.PENDING.getID (),
+                                                                                                            null,
+                                                                                                            null,
+                                                                                                            sMlsTo,
+                                                                                                            eMlsType.getID (),
+                                                                                                            null,
+                                                                                                            null));
 
-    return getByID (sID);
+    return nRowsAffected == 0 ? null : sID;
   }
 
   @Nullable

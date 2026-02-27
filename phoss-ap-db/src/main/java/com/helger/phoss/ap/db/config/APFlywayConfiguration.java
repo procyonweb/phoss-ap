@@ -21,7 +21,7 @@ import org.jspecify.annotations.Nullable;
 
 import com.helger.annotation.concurrent.Immutable;
 import com.helger.config.fallback.IConfigWithFallback;
-import com.helger.phoss.ap.api.config.APConfiguration;
+import com.helger.phoss.ap.api.config.APConfigProvider;
 import com.helger.phoss.ap.api.config.APConfigurationProperties;
 
 @Immutable
@@ -33,12 +33,13 @@ public final class APFlywayConfiguration
   @NonNull
   private static IConfigWithFallback _getConfig ()
   {
-    return APConfiguration.getConfig ();
+    return APConfigProvider.getConfig ();
   }
 
   public static boolean isFlywayEnabled ()
   {
-    return _getConfig ().getAsBoolean (APConfigurationProperties.FLYWAY_ENABLED, APConfigurationProperties.FLYWAY_ENABLED_DEFAULT);
+    return _getConfig ().getAsBoolean (APConfigurationProperties.FLYWAY_ENABLED,
+                                       APConfigurationProperties.FLYWAY_ENABLED_DEFAULT);
   }
 
   @Nullable
@@ -64,11 +65,13 @@ public final class APFlywayConfiguration
 
   public static boolean isFlywaySchemaCreate ()
   {
-    return _getConfig ().getAsBoolean (APConfigurationProperties.FLYWAY_JDBC_SCHEMA_CREATE, APConfigurationProperties.FLYWAY_JDBC_SCHEMA_CREATE_DEFAULT);
+    return _getConfig ().getAsBoolean (APConfigurationProperties.FLYWAY_JDBC_SCHEMA_CREATE,
+                                       APConfigurationProperties.FLYWAY_JDBC_SCHEMA_CREATE_DEFAULT);
   }
 
   public static int getFlywayBaselineVersion ()
   {
-    return _getConfig ().getAsInt (APConfigurationProperties.FLYWAY_BASELINE_VERSION, APConfigurationProperties.FLYWAY_BASELINE_VERSION_DEFAULT);
+    return _getConfig ().getAsInt (APConfigurationProperties.FLYWAY_BASELINE_VERSION,
+                                   APConfigurationProperties.FLYWAY_BASELINE_VERSION_DEFAULT);
   }
 }

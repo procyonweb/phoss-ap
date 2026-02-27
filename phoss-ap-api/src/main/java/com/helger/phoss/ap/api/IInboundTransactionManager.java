@@ -74,27 +74,27 @@ public interface IInboundTransactionManager
    *        Optional MLS_TO target participant ID. May be <code>null</code>.
    * @param eMlsType
    *        The MLS sending strategy. Never <code>null</code>.
-   * @return The created transaction. Never <code>null</code>.
+   * @return The ID of the created transaction. Only <code>null</code> if insertion fails.
    */
-  @NonNull
-  IInboundTransaction create (@NonNull String sIncomingID,
-                              @NonNull String sC2SeatID,
-                              @NonNull String sC3SeatID,
-                              @NonNull String sSigningCertCN,
-                              @NonNull String sSenderID,
-                              @NonNull String sReceiverID,
-                              @NonNull String sDocTypeID,
-                              @NonNull String sProcessID,
-                              byte @NonNull [] aDocumentBytes,
-                              @Nonnegative long nDocumentSize,
-                              @NonNull String sDocumentHash,
-                              @NonNull String sAS4MessageID,
-                              @NonNull OffsetDateTime aAS4Timestamp,
-                              @NonNull String sSbdhInstanceID,
-                              boolean bIsDuplicateAS4,
-                              boolean bIsDuplicateSBDH,
-                              @Nullable String sMlsTo,
-                              @NonNull EPeppolMLSType eMlsType);
+  @Nullable
+  String create (@NonNull String sIncomingID,
+                 @NonNull String sC2SeatID,
+                 @NonNull String sC3SeatID,
+                 @NonNull String sSigningCertCN,
+                 @NonNull String sSenderID,
+                 @NonNull String sReceiverID,
+                 @NonNull String sDocTypeID,
+                 @NonNull String sProcessID,
+                 byte @NonNull [] aDocumentBytes,
+                 @Nonnegative long nDocumentSize,
+                 @NonNull String sDocumentHash,
+                 @NonNull String sAS4MessageID,
+                 @NonNull OffsetDateTime aAS4Timestamp,
+                 @NonNull String sSbdhInstanceID,
+                 boolean bIsDuplicateAS4,
+                 boolean bIsDuplicateSBDH,
+                 @Nullable String sMlsTo,
+                 @NonNull EPeppolMLSType eMlsType);
 
   /**
    * Look up a transaction by its unique ID.

@@ -67,23 +67,22 @@ public interface IOutboundTransactionManager
    *        Optional MLS_TO override. May be <code>null</code>.
    * @param sMlsInboundTransactionID
    *        ID of the inbound transaction for MLS responses. May be <code>null</code>.
-   * @return The created transaction. Never <code>null</code>.
+   * @return The ID of the created transaction. Only <code>null</code> if insertion fails.
    */
-  // TODO do we need the created object here?
-  @NonNull
-  IOutboundTransaction create (@NonNull ETransactionType eTransactionType,
-                               @NonNull String sSenderID,
-                               @NonNull String sReceiverID,
-                               @NonNull String sDocTypeID,
-                               @NonNull String sProcessID,
-                               @NonNull String sSbdhInstanceID,
-                               @NonNull ESourceType eSourceType,
-                               byte @NonNull [] aDocumentBytes,
-                               @Nonnegative long nDocumentSize,
-                               @NonNull String sDocumentHash,
-                               @NonNull String sC1CountryCode,
-                               @Nullable String sMlsTo,
-                               @Nullable String sMlsInboundTransactionID);
+  @Nullable
+  String create (@NonNull ETransactionType eTransactionType,
+                 @NonNull String sSenderID,
+                 @NonNull String sReceiverID,
+                 @NonNull String sDocTypeID,
+                 @NonNull String sProcessID,
+                 @NonNull String sSbdhInstanceID,
+                 @NonNull ESourceType eSourceType,
+                 byte @NonNull [] aDocumentBytes,
+                 @Nonnegative long nDocumentSize,
+                 @NonNull String sDocumentHash,
+                 @NonNull String sC1CountryCode,
+                 @Nullable String sMlsTo,
+                 @Nullable String sMlsInboundTransactionID);
 
   /**
    * Look up a transaction by its unique ID.
