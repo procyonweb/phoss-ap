@@ -30,6 +30,7 @@ import com.helger.base.io.iface.IHasInputStream;
 import com.helger.base.io.stream.HasInputStream;
 import com.helger.base.state.ESuccess;
 import com.helger.base.string.StringHelper;
+import com.helger.base.tostring.ToStringGenerator;
 import com.helger.config.fallback.IConfigWithFallback;
 import com.helger.io.file.FilenameHelper;
 import com.helger.network.WebExceptionHelper;
@@ -272,5 +273,11 @@ public class SftpDocumentForwarderSPI implements IDocumentForwarderSPI
       LOGGER.error ("SFTP forwarding failed for transaction '" + aTransaction.getID () + "'", ex);
       return ForwardingResult.failure ("sftp_exception", ex.getMessage () + " (" + ex.getClass ().getName () + ")");
     }
+  }
+
+  @Override
+  public String toString ()
+  {
+    return new ToStringGenerator (this).append ("SftpSettings", m_aSftpSettings).getToString ();
   }
 }

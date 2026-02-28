@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.annotation.style.IsSPIImplementation;
 import com.helger.base.string.StringHelper;
+import com.helger.base.tostring.ToStringGenerator;
 import com.helger.config.fallback.IConfigWithFallback;
 import com.helger.phoss.ap.api.config.APConfigurationProperties;
 import com.helger.phoss.ap.api.model.ForwardingResult;
@@ -109,5 +110,11 @@ public class S3DocumentForwarderSPI implements IDocumentForwarderSPI
       LOGGER.error ("S3 forwarding failed for transaction '" + aTransaction.getID () + "'", ex);
       return ForwardingResult.failure ("s3_error", ex.getMessage () + " (" + ex.getClass ().getName () + ")");
     }
+  }
+
+  @Override
+  public String toString ()
+  {
+    return new ToStringGenerator (this).getToString ();
   }
 }

@@ -45,18 +45,18 @@ public class HttpDocumentForwarderSPI implements IDocumentForwarderSPI
   private static final Logger LOGGER = LoggerFactory.getLogger (HttpDocumentForwarderSPI.class);
 
   private final HttpClientSettings m_aHCS = new HttpClientSettings ();
-  private String m_sEndpoint;
+  private String m_sEndpointURL;
 
   public void initFromConfiguration (@NonNull final IConfigWithFallback aConfig)
   {
     HttpClientSettingsConfig.assignConfigValues (m_aHCS, aConfig, "forwarding.");
-    m_sEndpoint = aConfig.getAsString (APConfigurationProperties.FORWARDING_HTTP_ENDPOINT);
+    m_sEndpointURL = aConfig.getAsString (APConfigurationProperties.FORWARDING_HTTP_ENDPOINT);
   }
 
   @NonNull
   public ForwardingResult forwardDocument (@NonNull final IInboundTransaction aTransaction)
   {
-    if (StringHelper.isEmpty (m_sEndpoint))
+    if (StringHelper.isEmpty (m_sEndpointURL))
     {
       LOGGER.error ("HTTP forwarding endpoint not configured");
       return ForwardingResult.failure ("http_configuration_error", "HTTP forwarding endpoint not configured");
@@ -64,7 +64,7 @@ public class HttpDocumentForwarderSPI implements IDocumentForwarderSPI
 
     try (final HttpClientManager aHttpClientMgr = new HttpClientManager ())
     {
-      final HttpPost aPost = new HttpPost (m_sEndpoint);
+      final HttpPost aPost = new HttpPost (m_sEndpointURL);
       aPost.setEntity (new ByteArrayEntity (aTransaction.getDocumentBytes (), ContentType.APPLICATION_XML));
 
       LOGGER.info ("Forwarding inbound transaction '" +
@@ -72,7 +72,7 @@ public class HttpDocumentForwarderSPI implements IDocumentForwarderSPI
                    "' (SBDH ID '" +
                    aTransaction.getSbdhInstanceID () +
                    "') to '" +
-                   m_sEndpoint +
+                   m_sEndpointURL +
                    "'");
 
       aHttpClientMgr.execute (aPost, new ResponseHandlerByteArray ());
@@ -101,6 +101,6 @@ public class HttpDocumentForwarderSPI implements IDocumentForwarderSPI
   @Override
   public String toString ()
   {
-    return new ToStringGenerator (this).getToString ();
+    return new ToStringGenerator (this).append ("HCS", m_aHCS).append ("EnpointURL", m_sEndpointURL).getToString ();
   }
 }

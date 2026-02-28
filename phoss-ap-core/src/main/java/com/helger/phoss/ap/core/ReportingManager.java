@@ -20,7 +20,9 @@ import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.phoss.ap.api.codelist.EReportingStatus;
+import com.helger.phoss.ap.api.IInboundTransactionManager;
+import com.helger.phoss.ap.api.IOutboundTransactionManager;
+import com.helger.phoss.ap.db.APJDBCMetaManager;
 
 public final class ReportingManager
 {
@@ -32,6 +34,7 @@ public final class ReportingManager
   public static void markOutboundReported (@NonNull final String sTransactionID)
   {
     LOGGER.info ("Marking outbound transaction as reported: " + sTransactionID);
+    final IOutboundTransactionManager aTxMgr = APJDBCMetaManager.getOutboundTransactionMgr ();
     // Update reporting_status to REPORTED
     // Integration with peppol-reporting library for TSR/EUSR generation
   }
@@ -39,6 +42,7 @@ public final class ReportingManager
   public static void markInboundReported (@NonNull final String sTransactionID)
   {
     LOGGER.info ("Marking inbound transaction as reported: " + sTransactionID);
+    final IInboundTransactionManager aTxMgr = APJDBCMetaManager.getInboundTransactionMgr ();
     // Update reporting_status to REPORTED
   }
 }
