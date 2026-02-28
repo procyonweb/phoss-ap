@@ -17,13 +17,14 @@
 package com.helger.phoss.ap.forwarding.s3;
 
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.base.state.ESuccess;
 import com.helger.base.string.StringHelper;
+import com.helger.config.fallback.IConfigWithFallback;
+import com.helger.phoss.ap.api.config.APConfigurationProperties;
 import com.helger.phoss.ap.api.model.IInboundTransaction;
+import com.helger.phoss.ap.api.spi.ForwardingResult;
 import com.helger.phoss.ap.api.spi.IDocumentForwarderSPI;
 
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -38,55 +39,38 @@ public class S3DocumentForwarder implements IDocumentForwarderSPI
 {
   private static final Logger LOGGER = LoggerFactory.getLogger (S3DocumentForwarder.class);
 
+  private Region m_aRegion;
   private String m_sBucket;
-  private String m_sRegion;
   private String m_sAccessKeyId;
   private String m_sSecretAccessKey;
   private String m_sKeyPrefix;
-  private String m_sLinkEndpoint;
 
-  public void setBucket (@NonNull final String sBucket)
+  public void initFromConfiguration (@NonNull final IConfigWithFallback aConfig)
   {
-    m_sBucket = sBucket;
-  }
-
-  public void setRegion (@NonNull final String sRegion)
-  {
-    m_sRegion = sRegion;
-  }
-
-  public void setAccessKeyId (@Nullable final String sAccessKeyId)
-  {
-    m_sAccessKeyId = sAccessKeyId;
-  }
-
-  public void setSecretAccessKey (@Nullable final String sSecretAccessKey)
-  {
-    m_sSecretAccessKey = sSecretAccessKey;
-  }
-
-  public void setKeyPrefix (@Nullable final String sKeyPrefix)
-  {
-    m_sKeyPrefix = sKeyPrefix;
-  }
-
-  public void setLinkEndpoint (@NonNull final String sLinkEndpoint)
-  {
-    m_sLinkEndpoint = sLinkEndpoint;
+    m_aRegion = Region.of (aConfig.getAsString (APConfigurationProperties.FORWARDING_S3_REGION));
+    m_sBucket = aConfig.getAsString (APConfigurationProperties.FORWARDING_S3_BUCKET);
+    m_sAccessKeyId = aConfig.getAsString (APConfigurationProperties.FORWARDING_S3_ACCESS_KEY_ID);
+    m_sSecretAccessKey = aConfig.getAsString (APConfigurationProperties.FORWARDING_S3_SECRET_ACCESS_KEY);
+    m_sKeyPrefix = aConfig.getAsString (APConfigurationProperties.FORWARDING_S3_KEY_PREFIX);
   }
 
   @NonNull
-  public ESuccess forwardDocument (@NonNull final IInboundTransaction aTransaction)
+  public ForwardingResult forwardDocument (@NonNull final IInboundTransaction aTransaction)
   {
-    if (m_sBucket == null || m_sRegion == null)
+    if (m_aRegion == null)
     {
-      LOGGER.error ("S3 bucket or region not configured");
-      return ESuccess.FAILURE;
+      LOGGER.error ("S3 region not configured");
+      return ForwardingResult.failure ("s3_configuration_error", "S3 region not configured");
+    }
+    if (StringHelper.isEmpty (m_sBucket))
+    {
+      LOGGER.error ("S3 rbucket not configured");
+      return ForwardingResult.failure ("s3_configuration_error", "S3 bucket not configured");
     }
 
     try
     {
-      final S3ClientBuilder aBuilder = S3Client.builder ().region (Region.of (m_sRegion));
+      final S3ClientBuilder aBuilder = S3Client.builder ().region (m_aRegion);
       if (StringHelper.isNotEmpty (m_sAccessKeyId) && StringHelper.isNotEmpty (m_sSecretAccessKey))
       {
         aBuilder.credentialsProvider (StaticCredentialsProvider.create (AwsBasicCredentials.create (m_sAccessKeyId,
@@ -107,15 +91,21 @@ public class S3DocumentForwarder implements IDocumentForwarderSPI
 
         aS3Client.putObject (aPutReq, RequestBody.fromBytes (aTransaction.getDocumentBytes ()));
 
-        LOGGER.info ("Uploaded transaction " + aTransaction.getID () + " to S3: s3://" + m_sBucket + "/" + sKey);
+        LOGGER.info ("Uploaded transaction '" +
+                     aTransaction.getID () +
+                     "' to S3 bucket '" +
+                     m_sBucket +
+                     "' and key '" +
+                     sKey +
+                     "'");
 
-        return ESuccess.SUCCESS;
+        return ForwardingResult.success ();
       }
     }
     catch (final Exception ex)
     {
-      LOGGER.error ("S3 forwarding failed for transaction " + aTransaction.getID (), ex);
-      return ESuccess.FAILURE;
+      LOGGER.error ("S3 forwarding failed for transaction '" + aTransaction.getID () + "'", ex);
+      return ForwardingResult.failure ("s3_error", ex.getMessage () + " (" + ex.getClass ().getName () + ")");
     }
   }
 }

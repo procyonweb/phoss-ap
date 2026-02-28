@@ -25,50 +25,80 @@ import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.base.state.ESuccess;
+import com.helger.base.string.StringHelper;
+import com.helger.base.tostring.ToStringGenerator;
+import com.helger.config.fallback.IConfigWithFallback;
 import com.helger.httpclient.HttpClientManager;
+import com.helger.httpclient.HttpClientSettings;
+import com.helger.httpclient.HttpClientSettingsConfig;
+import com.helger.httpclient.response.ExtendedHttpResponseException;
 import com.helger.httpclient.response.ResponseHandlerByteArray;
+import com.helger.phoss.ap.api.config.APConfigurationProperties;
 import com.helger.phoss.ap.api.model.IInboundTransaction;
+import com.helger.phoss.ap.api.spi.ForwardingResult;
 import com.helger.phoss.ap.api.spi.IDocumentForwarderSPI;
 
 public class HttpDocumentForwarder implements IDocumentForwarderSPI
 {
   private static final Logger LOGGER = LoggerFactory.getLogger (HttpDocumentForwarder.class);
 
+  private final HttpClientSettings m_aHCS = new HttpClientSettings ();
   private String m_sEndpoint;
 
-  public void setEndpoint (@NonNull final String sEndpoint)
+  public void initFromConfiguration (@NonNull final IConfigWithFallback aConfig)
   {
-    m_sEndpoint = sEndpoint;
+    HttpClientSettingsConfig.assignConfigValues (m_aHCS, aConfig, "");
+    m_sEndpoint = aConfig.getAsString (APConfigurationProperties.FORWARDING_HTTP_ENDPOINT);
   }
 
   @NonNull
-  public ESuccess forwardDocument (@NonNull final IInboundTransaction aTransaction)
+  public ForwardingResult forwardDocument (@NonNull final IInboundTransaction aTransaction)
   {
-    if (m_sEndpoint == null)
+    if (StringHelper.isEmpty (m_sEndpoint))
     {
       LOGGER.error ("HTTP forwarding endpoint not configured");
-      return ESuccess.FAILURE;
+      return ForwardingResult.failure ("http_configuration_error", "HTTP forwarding endpoint not configured");
     }
 
     try (final HttpClientManager aHttpClientMgr = new HttpClientManager ())
     {
       final HttpPost aPost = new HttpPost (m_sEndpoint);
-      aPost.setEntity (new ByteArrayEntity (aTransaction.getDocumentBytes (),
-                                            ContentType.APPLICATION_XML));
+      aPost.setEntity (new ByteArrayEntity (aTransaction.getDocumentBytes (), ContentType.APPLICATION_XML));
 
-      LOGGER.info ("Forwarding inbound transaction " + aTransaction.getID () +
-                   " (SBDH: " + aTransaction.getSbdhInstanceID () + ") to " + m_sEndpoint);
+      LOGGER.info ("Forwarding inbound transaction '" +
+                   aTransaction.getID () +
+                   "' (SBDH ID '" +
+                   aTransaction.getSbdhInstanceID () +
+                   "') to '" +
+                   m_sEndpoint +
+                   "'");
 
       aHttpClientMgr.execute (aPost, new ResponseHandlerByteArray ());
 
       LOGGER.info ("HTTP forwarding successful for transaction " + aTransaction.getID ());
-      return ESuccess.SUCCESS;
+      return ForwardingResult.success ();
+    }
+    catch (final ExtendedHttpResponseException ex)
+    {
+      LOGGER.error ("HTTP forwarding failed for transaction '" + aTransaction.getID () + "'", ex);
+      // Status code already in the message
+      return ForwardingResult.failure ("http_status", ex.getMessage ());
     }
     catch (final IOException ex)
     {
-      LOGGER.error ("HTTP forwarding failed for transaction " + aTransaction.getID (), ex);
-      return ESuccess.FAILURE;
+      LOGGER.error ("HTTP forwarding failed for transaction '" + aTransaction.getID () + "'", ex);
+      return ForwardingResult.failure ("http_io_error", ex.getMessage () + " (" + ex.getClass ().getName () + ")");
     }
+    catch (final Exception ex)
+    {
+      LOGGER.error ("HTTP forwarding failed for transaction '" + aTransaction.getID () + "'", ex);
+      return ForwardingResult.failure ("http_error", ex.getMessage () + " (" + ex.getClass ().getName () + ")");
+    }
+  }
+
+  @Override
+  public String toString ()
+  {
+    return new ToStringGenerator (this).getToString ();
   }
 }

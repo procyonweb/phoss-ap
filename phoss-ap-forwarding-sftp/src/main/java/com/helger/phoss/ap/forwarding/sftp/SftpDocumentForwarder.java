@@ -16,74 +16,259 @@
  */
 package com.helger.phoss.ap.forwarding.sftp;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
+import java.time.format.DateTimeFormatter;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.helger.base.enforce.ValueEnforcer;
+import com.helger.base.exception.InitializationException;
+import com.helger.base.io.iface.IHasInputStream;
+import com.helger.base.io.stream.HasInputStream;
 import com.helger.base.state.ESuccess;
-import com.helger.jsch.session.DefaultSessionFactory;
-import com.helger.jsch.sftp.SftpRunner;
+import com.helger.base.string.StringHelper;
+import com.helger.config.fallback.IConfigWithFallback;
+import com.helger.io.file.FilenameHelper;
+import com.helger.network.WebExceptionHelper;
 import com.helger.phoss.ap.api.model.IInboundTransaction;
+import com.helger.phoss.ap.api.spi.ForwardingResult;
 import com.helger.phoss.ap.api.spi.IDocumentForwarderSPI;
+import com.helger.photon.connect.sftp.AbstractChannelSftpRunnable;
+import com.helger.photon.connect.sftp.ISftpSettings;
+import com.helger.photon.connect.sftp.SftpMaxParallelRunner;
+import com.helger.photon.connect.sftp.SftpSettings;
+import com.helger.photon.connect.sftp.progress.CountingSftpProgressMonitor;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.SftpATTRS;
+import com.jcraft.jsch.SftpException;
 
 public class SftpDocumentForwarder implements IDocumentForwarderSPI
 {
   private static final Logger LOGGER = LoggerFactory.getLogger (SftpDocumentForwarder.class);
+  private static final String SFTP_DATETIME_PATTERN = "yyyyMMddHHmmss";
+  private static final AtomicInteger WRITE_FILE_COUNT = new AtomicInteger (0);
 
-  private String m_sHost;
-  private int m_nPort = 22;
-  private String m_sUser;
-  private String m_sPassword;
-  private String m_sDirectory;
+  private ISftpSettings m_aSftpSettings;
 
-  public void setHost (@NonNull final String sHost) { m_sHost = sHost; }
-  public void setPort (final int nPort) { m_nPort = nPort; }
-  public void setUser (@NonNull final String sUser) { m_sUser = sUser; }
-  public void setPassword (@Nullable final String sPassword) { m_sPassword = sPassword; }
-  public void setDirectory (@NonNull final String sDirectory) { m_sDirectory = sDirectory; }
+  public void initFromConfiguration (@NonNull final IConfigWithFallback aConfig)
+  {
+    m_aSftpSettings = SftpSettings.createFromConfig (aConfig, "forwarding.sftp");
+    if (m_aSftpSettings == null)
+      throw new InitializationException ("Failed to initialize SFTP settings from configuration");
+  }
+
+  private static boolean _dirExists (@NonNull final ChannelSftp aChannel, @NonNull final String sDirName)
+  {
+    try
+    {
+      final SftpATTRS aAttrs = aChannel.stat (sDirName);
+      if (aAttrs == null)
+        return false;
+
+      if ((aAttrs.getFlags () & SftpATTRS.SSH_FILEXFER_ATTR_PERMISSIONS) == 0)
+      {
+        LOGGER.warn ("Unexpected directory flag: " + aAttrs.getFlags () + " - persmissions not present?");
+        return false;
+      }
+
+      return aAttrs.isDir ();
+    }
+    catch (final SftpException ex)
+    {
+      // E.g. com.jcraft.jsch.SftpException: The requested file does not exist
+      if (false)
+        LOGGER.warn ("Failed to check if dir '" + sDirName + "' exists", ex);
+      return false;
+    }
+  }
 
   @NonNull
-  public ESuccess forwardDocument (@NonNull final IInboundTransaction aTransaction)
+  private static ESuccess _mkdir (@NonNull final ChannelSftp aChannel, @NonNull final String sDirName)
   {
-    if (m_sHost == null || m_sUser == null || m_sDirectory == null)
+    try
     {
-      LOGGER.error ("SFTP host, user, or directory not configured");
+      final String [] aDirs = StringHelper.getExplodedArray ('/', sDirName);
+
+      // Special handling for first part
+      if (!StringHelper.startsWith (sDirName, '/'))
+      {
+        String sPwd = aChannel.pwd ();
+
+        // Avoid leading slash
+        if (StringHelper.startsWith (sPwd, '/'))
+          sPwd = sPwd.substring (1);
+
+        if (StringHelper.isNotEmpty (sPwd))
+        {
+          // Append only if something is present
+          if (!StringHelper.endsWith (sPwd, '/'))
+            sPwd += '/';
+          LOGGER.info ("Prefixing dir with '" + sPwd + "'");
+          aDirs[0] = sPwd + aDirs[0];
+        }
+      }
+
+      // Piece by piece
+      for (int i = 1; i < aDirs.length; i++)
+        aDirs[i] = aDirs[i - 1] + '/' + aDirs[i];
+
+      for (final String sDir : aDirs)
+        if (StringHelper.isNotEmpty (sDir) && !_dirExists (aChannel, sDir))
+        {
+          LOGGER.info ("Trying to create SFTP directory '" + sDir + "'");
+          aChannel.mkdir (sDir);
+        }
+
+      return ESuccess.SUCCESS;
+    }
+    catch (final SftpException ex)
+    {
+      // Folder can not be found!
+      LOGGER.warn ("Failed to mkdir '" + sDirName + "'", ex);
       return ESuccess.FAILURE;
     }
+  }
+
+  /**
+   * Upload a file to the server by first writing the content to a file with the extension ".tmp".
+   * Once all data is transfer, the file is renamed to the original destination filename.
+   *
+   * @param aUploadSettings
+   *        The connection settings to use. May not be <code>null</code>.
+   * @param sTargetDirectory
+   *        The name of the target directory. May not be <code>null</code>.
+   * @param sTargetFilename
+   *        The name of the uploaded file. May not be <code>null</code>.
+   * @param aISP
+   *        The input stream to read from. The stream is automatically closed within this method -
+   *        no matter whether the upload was successful or not. May not be <code>null</code>.
+   * @return The {@link ForwardingResult} to return. Never <code>null</code>.
+   */
+  @NonNull
+  public static ForwardingResult writeUploadedFile (@NonNull final ISftpSettings aUploadSettings,
+                                                    @NonNull final String sTargetDirectory,
+                                                    @NonNull final String sTargetFilename,
+                                                    @NonNull final IHasInputStream aISP)
+  {
+    ValueEnforcer.notNull (aUploadSettings, "UploadSettings");
+    ValueEnforcer.notNull (sTargetDirectory, "TargetDirectory");
+    ValueEnforcer.notNull (sTargetFilename, "TargetFilename");
+    ValueEnforcer.notNull (aISP, "ISP");
+
+    final String sLogPrefix = aUploadSettings.getLogPrefix ();
+    final String sRealTargetDirectory = StringHelper.trimEnd (aUploadSettings.getServerDirectoryUpload (), '/') +
+                                        '/' +
+                                        StringHelper.trimStart (sTargetDirectory, '/');
+
+    if (LOGGER.isDebugEnabled ())
+      LOGGER.debug (sLogPrefix + "Trying to upload SFTP file '" + sRealTargetDirectory + "/" + sTargetFilename + "'");
 
     try
     {
-      final DefaultSessionFactory aFactory = new DefaultSessionFactory (m_sUser, m_sHost, m_nPort);
-      if (m_sPassword != null)
-        aFactory.setPassword (m_sPassword);
-
-      try (final SftpRunner aSftpRunner = new SftpRunner (aFactory))
+      // do file upload
+      final AbstractChannelSftpRunnable aUpload = new AbstractChannelSftpRunnable ("put " +
+                                                                                   sRealTargetDirectory +
+                                                                                   "/" +
+                                                                                   sTargetFilename)
       {
-        final String sRemotePath = m_sDirectory + "/" + aTransaction.getSbdhInstanceID () + ".xml";
+        public void execute (@NonNull final ChannelSftp aChannel) throws SftpException
+        {
+          // Ensure directory exists
+          _mkdir (aChannel, sRealTargetDirectory);
 
-        aSftpRunner.execute (sftp -> {
-          try
-          {
-            sftp.put (new ByteArrayInputStream (aTransaction.getDocumentBytes ()), sRemotePath);
-          }
-          catch (final com.jcraft.jsch.SftpException ex2)
-          {
-            throw new IOException ("SFTP put failed", ex2);
-          }
-        });
+          // goto "in" directory (will fail
+          // if
+          // mkdir failed)
+          aChannel.cd (sRealTargetDirectory);
 
-        LOGGER.info ("Uploaded transaction " + aTransaction.getID () + " to SFTP: " + sRemotePath);
-        return ESuccess.SUCCESS;
-      }
+          /*
+           * First write to the server with a temporary filename, to avoid that unfinished documents
+           * are retrieved.The total length is unknown that's why we need to count.
+           */
+          final String sTargetTempFilename = sTargetFilename + ".tmp";
+
+          WRITE_FILE_COUNT.incrementAndGet ();
+          LOGGER.info (sLogPrefix +
+                       "transfering file [" +
+                       WRITE_FILE_COUNT.get () +
+                       "] to server: '" +
+                       aChannel.pwd () +
+                       "/" +
+                       sTargetTempFilename +
+                       "'");
+
+          final CountingSftpProgressMonitor aCounter = new CountingSftpProgressMonitor ();
+          aChannel.put (aISP.getInputStream (), sTargetTempFilename, aCounter);
+          final long nBytesWritten = aCounter.getNumberOfBytes ();
+
+          LOGGER.info (sLogPrefix +
+                       "wrote " +
+                       nBytesWritten +
+                       " bytes; renaming file '" +
+                       sTargetTempFilename +
+                       "' to '" +
+                       sTargetFilename +
+                       "'");
+
+          // rename after upload finished -> file is ready to read by handler
+          aChannel.rename (sTargetTempFilename, sTargetFilename);
+
+          if (LOGGER.isDebugEnabled ())
+            LOGGER.debug (sLogPrefix + "And renamed '" + sTargetTempFilename + "' to '" + sTargetFilename + "'");
+        }
+      };
+      final ESuccess eSuccess = SftpMaxParallelRunner.execute (aUploadSettings, aUpload);
+      if (eSuccess.isSuccess ())
+        return ForwardingResult.success ();
+
+      return ForwardingResult.failure ("sftp_execution",
+                                       "Failed to perform SFTP upload to '" +
+                                                         sRealTargetDirectory +
+                                                         "/" +
+                                                         sTargetFilename +
+                                                         "'");
+    }
+    catch (final JSchException ex)
+    {
+      // Error sending document to server - keep file!
+      final Throwable aCause = ex.getCause ();
+      final String sErrorMsg = "Failed to transmit document '" +
+                               sRealTargetDirectory +
+                               "/" +
+                               sTargetFilename +
+                               "' to the server";
+      if (WebExceptionHelper.isServerNotReachableConnection (aCause))
+        LOGGER.error (sLogPrefix + ": " + aCause.getMessage ());
+      else
+        LOGGER.error (sLogPrefix + "!", ex);
+      return ForwardingResult.failure ("sftp_error", sErrorMsg);
+    }
+  }
+
+  @NonNull
+  public ForwardingResult forwardDocument (@NonNull final IInboundTransaction aTransaction)
+  {
+    try
+    {
+      // Layout: yyyyMMddHHmmss_(random value).xml
+      final String sTargetFilename = DateTimeFormatter.ofPattern (SFTP_DATETIME_PATTERN)
+                                                      .format (aTransaction.getReceivedDT ()) +
+                                     "_" +
+                                     FilenameHelper.getAsSecureValidASCIIFilename (aTransaction.getIncomingID ()) +
+                                     ".xml";
+
+      return writeUploadedFile (m_aSftpSettings,
+                                "",
+                                sTargetFilename,
+                                HasInputStream.create (aTransaction.getDocumentBytes ()));
     }
     catch (final Exception ex)
     {
-      LOGGER.error ("SFTP forwarding failed for transaction " + aTransaction.getID (), ex);
-      return ESuccess.FAILURE;
+      LOGGER.error ("SFTP forwarding failed for transaction '" + aTransaction.getID () + "'", ex);
+      return ForwardingResult.failure ("sftp_exception", ex.getMessage () + " (" + ex.getClass ().getName () + ")");
     }
   }
 }

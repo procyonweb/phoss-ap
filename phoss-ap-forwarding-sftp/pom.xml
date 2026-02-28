@@ -40,5 +40,10 @@
       <groupId>com.helger.web</groupId>
       <artifactId>ph-jsch</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.helger.photon</groupId>
+      <artifactId>ph-oton-connect</artifactId>
+      <version>${ph-oton.version}</version>
+    </dependency>
   </dependencies>
 </project>

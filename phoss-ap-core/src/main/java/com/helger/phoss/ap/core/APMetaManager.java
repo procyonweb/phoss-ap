@@ -16,6 +16,7 @@
  */
 package com.helger.phoss.ap.core;
 
+import java.util.List;
 import java.util.ServiceLoader;
 
 import org.jspecify.annotations.NonNull;
@@ -24,8 +25,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.annotation.style.ReturnsMutableCopy;
+import com.helger.base.exception.InitializationException;
+import com.helger.base.spi.ServiceLoaderHelper;
 import com.helger.collection.commons.CommonsArrayList;
 import com.helger.collection.commons.ICommonsList;
+import com.helger.phoss.ap.api.config.APConfigProvider;
 import com.helger.phoss.ap.api.spi.IDocumentForwarderSPI;
 import com.helger.phoss.ap.api.spi.IInboundDocumentVerifierSPI;
 import com.helger.phoss.ap.api.spi.INotificationHandlerSPI;
@@ -50,10 +54,19 @@ public final class APMetaManager
     LOGGER.info ("Initializing APMetaManager");
 
     // Load SPI implementations
-    for (final IDocumentForwarderSPI aForwarder : ServiceLoader.load (IDocumentForwarderSPI.class))
     {
+      final List <IDocumentForwarderSPI> aForwarders = ServiceLoaderHelper.getAllSPIImplementations (IDocumentForwarderSPI.class);
+      if (aForwarders.isEmpty ())
+        throw new InitializationException ("No SPI forwarder is configured");
+      if (aForwarders.size () != 1)
+        throw new InitializationException ("Expected exactly on SPI forwarder but found " +
+                                           aForwarders.size () +
+                                           ": " +
+                                           aForwarders);
+      final IDocumentForwarderSPI aForwarder = aForwarders.get (0);
+      aForwarder.initFromConfiguration (APConfigProvider.getConfig ());
       s_aForwarder = aForwarder;
-      LOGGER.info ("Loaded document forwarder: " + aForwarder.getClass ().getName ());
+      LOGGER.info ("Loaded document forwarder: " + aForwarder.toString ());
     }
 
     for (final IInboundDocumentVerifierSPI aVerifier : ServiceLoader.load (IInboundDocumentVerifierSPI.class))

@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.unece.cefact.namespaces.sbdh.StandardBusinessDocument;
 
-import com.helger.base.state.ESuccess;
 import com.helger.http.header.HttpHeaderMap;
 import com.helger.peppol.sbdh.PeppolSBDHData;
 import com.helger.phase4.ebms3header.Ebms3UserMessage;
@@ -38,6 +37,7 @@ import com.helger.phoss.ap.api.IInboundTransactionManager;
 import com.helger.phoss.ap.api.codelist.EDuplicateDetectionMode;
 import com.helger.phoss.ap.api.codelist.EInboundStatus;
 import com.helger.phoss.ap.api.model.IInboundTransaction;
+import com.helger.phoss.ap.api.spi.ForwardingResult;
 import com.helger.phoss.ap.api.spi.IDocumentForwarderSPI;
 import com.helger.phoss.ap.api.spi.IInboundDocumentVerifierSPI;
 import com.helger.phoss.ap.api.spi.IReceiverCheckSPI;
@@ -174,9 +174,9 @@ public class InboundMessageProcessor implements IPhase4PeppolIncomingSBDHandlerS
     aTxMgr.updateStatus (aTx.getID (), EInboundStatus.FORWARDING);
 
     // Actual forwarding
-    final ESuccess eResult = aForwarder.forwardDocument (aTx);
+    final ForwardingResult aResult = aForwarder.forwardDocument (aTx);
 
-    if (eResult.isSuccess ())
+    if (aResult.isSuccess ())
     {
       // Forwarding worked
       aAttemptMgr.createSuccess (aTx.getID ());
@@ -186,7 +186,7 @@ public class InboundMessageProcessor implements IPhase4PeppolIncomingSBDHandlerS
     else
     {
       // Forwarding failed
-      aAttemptMgr.createFailure (aTx.getID (), "forwarding_error", "Forwarding failed");
+      aAttemptMgr.createFailure (aTx.getID (), aResult.getErrorCode (), aResult.getErrorDetails ());
 
       final int nNewAttemptCount = aTx.getAttemptCount () + 1;
       final int nMaxRetryAttempts = APCoreConfig.getRetryForwardingMaxAttempts ();
@@ -196,7 +196,7 @@ public class InboundMessageProcessor implements IPhase4PeppolIncomingSBDHandlerS
                                      EInboundStatus.PERMANENTLY_FAILED,
                                      nNewAttemptCount,
                                      null,
-                                     "Max retries (" + nMaxRetryAttempts + ") exhausted");
+                                     "Max retries (" + nMaxRetryAttempts + ") exhausted: " + aResult.getErrorDetails ());
 
         for (final var aHandler : APMetaManager.getAllNotificationHandlers ())
           aHandler.onPermanentForwardingFailure (aTx.getID (), aTx.getSbdhInstanceID (), "Max retries exhausted");
@@ -211,7 +211,7 @@ public class InboundMessageProcessor implements IPhase4PeppolIncomingSBDHandlerS
                                      EInboundStatus.FORWARD_FAILED,
                                      nNewAttemptCount,
                                      aNextRetry,
-                                     "Forwarding failed");
+                                     aResult.getErrorDetails ());
       }
     }
   }
