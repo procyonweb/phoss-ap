@@ -25,12 +25,13 @@ import com.helger.collection.commons.CommonsArrayList;
 import com.helger.collection.commons.ICommonsList;
 import com.helger.db.jdbc.callback.ConstantPreparedStatementDataProvider;
 import com.helger.db.jdbc.executor.DBResultRow;
-import com.helger.phoss.ap.api.IOutboundSendingAttempt;
+import com.helger.phoss.ap.api.IOutboundSendingAttemptManager;
 import com.helger.phoss.ap.api.codelist.EAttemptStatus;
 import com.helger.phoss.ap.api.datetime.IAPTimestampManager;
+import com.helger.phoss.ap.api.model.IOutboundSendingAttempt;
 import com.helger.phoss.ap.db.dto.OutboundSendingAttemptRow;
 
-public class OutboundSendingAttemptManagerJDBC extends AbstractAPJDBCManager
+public class OutboundSendingAttemptManagerJDBC extends AbstractAPJDBCManager implements IOutboundSendingAttemptManager
 {
   private static final String COLS = "id, outbound_transaction_id, as4_message_id, as4_timestamp," +
                                      " receipt_message_id, http_status_code, attempt_dt, attempt_status, error_details";

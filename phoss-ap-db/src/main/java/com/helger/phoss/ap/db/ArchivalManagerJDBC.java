@@ -25,6 +25,7 @@ import com.helger.base.enforce.ValueEnforcer;
 import com.helger.base.state.ESuccess;
 import com.helger.db.jdbc.callback.ConstantPreparedStatementDataProvider;
 import com.helger.db.jdbc.executor.DBExecutor;
+import com.helger.phoss.ap.api.IArchivalManager;
 import com.helger.phoss.ap.api.datetime.IAPTimestampManager;
 
 /**
@@ -32,7 +33,7 @@ import com.helger.phoss.ap.api.datetime.IAPTimestampManager;
  *
  * @author Philip Helger
  */
-public class ArchivalManagerJDBC extends AbstractAPJDBCManager
+public class ArchivalManagerJDBC extends AbstractAPJDBCManager implements IArchivalManager
 {
   private static final Logger LOGGER = LoggerFactory.getLogger (ArchivalManagerJDBC.class);
 
@@ -41,8 +42,7 @@ public class ArchivalManagerJDBC extends AbstractAPJDBCManager
     super (aTimestampMgr);
   }
 
-  @NonNull
-  public ESuccess archiveOutboundTransaction (@NonNull @Nonempty final String sID)
+  public ESuccess archiveOutboundTransaction (@Nonempty final String sID)
   {
     ValueEnforcer.notEmpty (sID, "ID");
 
@@ -66,8 +66,7 @@ public class ArchivalManagerJDBC extends AbstractAPJDBCManager
     });
   }
 
-  @NonNull
-  public ESuccess archiveInboundTransaction (@NonNull final String sID)
+  public ESuccess archiveInboundTransaction (final String sID)
   {
     ValueEnforcer.notEmpty (sID, "ID");
 

@@ -27,8 +27,9 @@ import com.helger.annotation.style.ReturnsMutableCopy;
 import com.helger.collection.commons.CommonsArrayList;
 import com.helger.collection.commons.ICommonsList;
 import com.helger.phoss.ap.api.spi.IDocumentForwarderSPI;
-import com.helger.phoss.ap.api.spi.IDocumentVerifierSPI;
+import com.helger.phoss.ap.api.spi.IInboundDocumentVerifierSPI;
 import com.helger.phoss.ap.api.spi.INotificationHandlerSPI;
+import com.helger.phoss.ap.api.spi.IOutboundDocumentVerifierSPI;
 import com.helger.phoss.ap.api.spi.IReceiverCheckSPI;
 
 public final class APMetaManager
@@ -36,7 +37,8 @@ public final class APMetaManager
   private static final Logger LOGGER = LoggerFactory.getLogger (APMetaManager.class);
 
   private static IDocumentForwarderSPI s_aForwarder;
-  private static final ICommonsList <IDocumentVerifierSPI> s_aVerifiers = new CommonsArrayList <> ();
+  private static final ICommonsList <IInboundDocumentVerifierSPI> s_aInboundVerifiers = new CommonsArrayList <> ();
+  private static final ICommonsList <IOutboundDocumentVerifierSPI> s_aOutboundVerifiers = new CommonsArrayList <> ();
   private static final ICommonsList <IReceiverCheckSPI> s_aReceiverChecks = new CommonsArrayList <> ();
   private static final ICommonsList <INotificationHandlerSPI> s_aNotificationHandlers = new CommonsArrayList <> ();
 
@@ -54,10 +56,16 @@ public final class APMetaManager
       LOGGER.info ("Loaded document forwarder: " + aForwarder.getClass ().getName ());
     }
 
-    for (final IDocumentVerifierSPI aVerifier : ServiceLoader.load (IDocumentVerifierSPI.class))
+    for (final IInboundDocumentVerifierSPI aVerifier : ServiceLoader.load (IInboundDocumentVerifierSPI.class))
     {
-      s_aVerifiers.add (aVerifier);
-      LOGGER.info ("Loaded document verifier: " + aVerifier.getClass ().getName ());
+      s_aInboundVerifiers.add (aVerifier);
+      LOGGER.info ("Loaded inbound document verifier: " + aVerifier.getClass ().getName ());
+    }
+
+    for (final IOutboundDocumentVerifierSPI aVerifier : ServiceLoader.load (IOutboundDocumentVerifierSPI.class))
+    {
+      s_aOutboundVerifiers.add (aVerifier);
+      LOGGER.info ("Loaded outbound document verifier: " + aVerifier.getClass ().getName ());
     }
 
     for (final IReceiverCheckSPI aCheck : ServiceLoader.load (IReceiverCheckSPI.class))
@@ -88,9 +96,16 @@ public final class APMetaManager
 
   @NonNull
   @ReturnsMutableCopy
-  public static ICommonsList <IDocumentVerifierSPI> getAllVerifiers ()
+  public static ICommonsList <IInboundDocumentVerifierSPI> getAllInboundVerifiers ()
   {
-    return s_aVerifiers.getClone ();
+    return s_aInboundVerifiers.getClone ();
+  }
+
+  @NonNull
+  @ReturnsMutableCopy
+  public static ICommonsList <IOutboundDocumentVerifierSPI> getAllOutboundVerifiers ()
+  {
+    return s_aOutboundVerifiers.getClone ();
   }
 
   @NonNull

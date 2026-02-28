@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.phoss.ap.api;
+package com.helger.phoss.ap.api.model;
 
 import java.time.OffsetDateTime;
 

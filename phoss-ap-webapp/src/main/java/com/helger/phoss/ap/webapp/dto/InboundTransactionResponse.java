@@ -16,7 +16,7 @@
  */
 package com.helger.phoss.ap.webapp.dto;
 
-import com.helger.phoss.ap.api.IInboundTransaction;
+import com.helger.phoss.ap.api.model.IInboundTransaction;
 
 public class InboundTransactionResponse
 {

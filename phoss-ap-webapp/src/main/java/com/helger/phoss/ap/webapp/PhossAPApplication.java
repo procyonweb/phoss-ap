@@ -25,9 +25,9 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 
 import com.helger.phoss.ap.core.APMetaManager;
-import com.helger.phoss.ap.core.ArchivalScheduler;
-import com.helger.phoss.ap.core.RetryScheduler;
 import com.helger.phoss.ap.core.StartupRecovery;
+import com.helger.phoss.ap.core.job.ArchivalScheduler;
+import com.helger.phoss.ap.core.job.RetryScheduler;
 
 @SpringBootApplication
 public class PhossAPApplication

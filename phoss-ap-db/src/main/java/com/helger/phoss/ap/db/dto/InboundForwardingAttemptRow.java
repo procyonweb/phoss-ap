@@ -24,8 +24,8 @@ import org.jspecify.annotations.Nullable;
 import com.helger.annotation.Nonempty;
 import com.helger.base.enforce.ValueEnforcer;
 import com.helger.db.jdbc.executor.DBResultRow;
-import com.helger.phoss.ap.api.IInboundForwardingAttempt;
 import com.helger.phoss.ap.api.codelist.EAttemptStatus;
+import com.helger.phoss.ap.api.model.IInboundForwardingAttempt;
 
 /**
  * Simple implementation of {@link IInboundForwardingAttempt} created from JDBC result object.

@@ -27,9 +27,9 @@ import com.helger.base.enforce.ValueEnforcer;
 import com.helger.db.jdbc.executor.DBResultRow;
 import com.helger.peppol.mls.EPeppolMLSResponseCode;
 import com.helger.peppol.sbdh.EPeppolMLSType;
-import com.helger.phoss.ap.api.IInboundTransaction;
 import com.helger.phoss.ap.api.codelist.EInboundStatus;
 import com.helger.phoss.ap.api.codelist.EReportingStatus;
+import com.helger.phoss.ap.api.model.IInboundTransaction;
 
 /**
  * Simple implementation of {@link IInboundTransaction} created from JDBC result object.

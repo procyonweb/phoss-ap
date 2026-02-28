@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.helger.phoss.ap.api.IOutboundTransaction;
+import com.helger.phoss.ap.api.model.IOutboundTransaction;
 import com.helger.phoss.ap.core.OutboundOrchestrator;
 import com.helger.phoss.ap.db.APMetaJDBCManager;
 import com.helger.phoss.ap.webapp.dto.OutboundTransactionResponse;

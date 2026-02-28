@@ -27,6 +27,7 @@ import com.helger.collection.commons.ICommonsList;
 import com.helger.peppol.mls.EPeppolMLSResponseCode;
 import com.helger.peppol.sbdh.EPeppolMLSType;
 import com.helger.phoss.ap.api.codelist.EInboundStatus;
+import com.helger.phoss.ap.api.model.IInboundTransaction;
 
 /**
  * Manager interface for creating and querying inbound transactions.

@@ -29,7 +29,7 @@ import com.helger.base.state.ESuccess;
  * @author Philip Helger
  */
 @IsSPIInterface
-public interface IDocumentVerifierSPI
+public interface IOutboundDocumentVerifierSPI
 {
   /**
    * Verify a document's content against the given document type and process

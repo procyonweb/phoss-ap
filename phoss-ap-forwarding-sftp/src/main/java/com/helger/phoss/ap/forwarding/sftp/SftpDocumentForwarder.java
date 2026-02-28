@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import com.helger.base.state.ESuccess;
 import com.helger.jsch.session.DefaultSessionFactory;
 import com.helger.jsch.sftp.SftpRunner;
-import com.helger.phoss.ap.api.IInboundTransaction;
+import com.helger.phoss.ap.api.model.IInboundTransaction;
 import com.helger.phoss.ap.api.spi.IDocumentForwarderSPI;
 
 public class SftpDocumentForwarder implements IDocumentForwarderSPI

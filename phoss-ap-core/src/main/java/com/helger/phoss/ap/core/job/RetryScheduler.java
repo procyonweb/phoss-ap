@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.phoss.ap.core;
+package com.helger.phoss.ap.core.job;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -23,8 +23,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.collection.commons.ICommonsList;
-import com.helger.phoss.ap.api.IInboundTransaction;
-import com.helger.phoss.ap.api.IOutboundTransaction;
+import com.helger.phoss.ap.api.model.IInboundTransaction;
+import com.helger.phoss.ap.api.model.IOutboundTransaction;
+import com.helger.phoss.ap.core.APCoreConfig;
+import com.helger.phoss.ap.core.APMetaManager;
+import com.helger.phoss.ap.core.OutboundOrchestrator;
 import com.helger.phoss.ap.db.APMetaJDBCManager;
 
 public final class RetryScheduler

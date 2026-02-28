@@ -29,6 +29,7 @@ import com.helger.phoss.ap.api.codelist.EMlsReceptionStatus;
 import com.helger.phoss.ap.api.codelist.EOutboundStatus;
 import com.helger.phoss.ap.api.codelist.ESourceType;
 import com.helger.phoss.ap.api.codelist.ETransactionType;
+import com.helger.phoss.ap.api.model.IOutboundTransaction;
 
 /**
  * Manager interface for creating and querying outbound transactions.

@@ -33,17 +33,17 @@ import com.helger.phase4.error.AS4ErrorList;
 import com.helger.phase4.incoming.IAS4IncomingMessageMetadata;
 import com.helger.phase4.incoming.IAS4IncomingMessageState;
 import com.helger.phase4.peppol.servlet.IPhase4PeppolIncomingSBDHandlerSPI;
-import com.helger.phoss.ap.api.IInboundTransaction;
+import com.helger.phoss.ap.api.IInboundForwardingAttemptManager;
+import com.helger.phoss.ap.api.IInboundTransactionManager;
 import com.helger.phoss.ap.api.codelist.EDuplicateDetectionMode;
 import com.helger.phoss.ap.api.codelist.EInboundStatus;
+import com.helger.phoss.ap.api.model.IInboundTransaction;
 import com.helger.phoss.ap.api.spi.IDocumentForwarderSPI;
-import com.helger.phoss.ap.api.spi.IDocumentVerifierSPI;
+import com.helger.phoss.ap.api.spi.IInboundDocumentVerifierSPI;
 import com.helger.phoss.ap.api.spi.IReceiverCheckSPI;
 import com.helger.phoss.ap.core.helper.BackoffCalculator;
 import com.helger.phoss.ap.core.helper.HashHelper;
 import com.helger.phoss.ap.db.APMetaJDBCManager;
-import com.helger.phoss.ap.db.InboundForwardingAttemptManagerJDBC;
-import com.helger.phoss.ap.db.InboundTransactionManagerJDBC;
 
 public class InboundMessageProcessor implements IPhase4PeppolIncomingSBDHandlerSPI
 {
@@ -58,7 +58,7 @@ public class InboundMessageProcessor implements IPhase4PeppolIncomingSBDHandlerS
                                  @NonNull final IAS4IncomingMessageState aState,
                                  @NonNull final AS4ErrorList aProcessingErrorMessages) throws Exception
   {
-    final InboundTransactionManagerJDBC aTxMgr = APMetaJDBCManager.getInboundTransactionMgr ();
+    final IInboundTransactionManager aTxMgr = APMetaJDBCManager.getInboundTransactionMgr ();
 
     final String sIncomingID = aMessageMetadata.getIncomingUniqueID ();
     final String sAS4MessageID = aState.getMessageID ();
@@ -139,7 +139,7 @@ public class InboundMessageProcessor implements IPhase4PeppolIncomingSBDHandlerS
     // Optional verification
     if (APCoreConfig.isVerificationInboundEnabled ())
     {
-      for (final IDocumentVerifierSPI aVerifier : APMetaManager.getAllVerifiers ())
+      for (final IInboundDocumentVerifierSPI aVerifier : APMetaManager.getAllInboundVerifiers ())
       {
         if (aVerifier.verifyDocument (aSBDBytes, sDocTypeID, sProcessID).isFailure ())
         {
@@ -159,8 +159,8 @@ public class InboundMessageProcessor implements IPhase4PeppolIncomingSBDHandlerS
 
   private void _forwardDocument (@Nullable final IInboundTransaction aTx)
   {
-    final InboundTransactionManagerJDBC aTxMgr = APMetaJDBCManager.getInboundTransactionMgr ();
-    final InboundForwardingAttemptManagerJDBC aAttemptMgr = APMetaJDBCManager.getInboundForwardingAttemptMgr ();
+    final IInboundTransactionManager aTxMgr = APMetaJDBCManager.getInboundTransactionMgr ();
+    final IInboundForwardingAttemptManager aAttemptMgr = APMetaJDBCManager.getInboundForwardingAttemptMgr ();
 
     final IDocumentForwarderSPI aForwarder = APMetaManager.getForwarder ();
     if (aForwarder == null)

@@ -25,12 +25,12 @@ import com.helger.annotation.Nonempty;
 import com.helger.annotation.Nonnegative;
 import com.helger.base.enforce.ValueEnforcer;
 import com.helger.db.jdbc.executor.DBResultRow;
-import com.helger.phoss.ap.api.IOutboundTransaction;
 import com.helger.phoss.ap.api.codelist.EMlsReceptionStatus;
 import com.helger.phoss.ap.api.codelist.EOutboundStatus;
 import com.helger.phoss.ap.api.codelist.EReportingStatus;
 import com.helger.phoss.ap.api.codelist.ESourceType;
 import com.helger.phoss.ap.api.codelist.ETransactionType;
+import com.helger.phoss.ap.api.model.IOutboundTransaction;
 
 /**
  * Simple implementation of {@link IOutboundTransaction} created from JDBC result object.

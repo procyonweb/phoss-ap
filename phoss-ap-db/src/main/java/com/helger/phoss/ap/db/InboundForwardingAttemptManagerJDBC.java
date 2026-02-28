@@ -25,12 +25,13 @@ import com.helger.collection.commons.CommonsArrayList;
 import com.helger.collection.commons.ICommonsList;
 import com.helger.db.jdbc.callback.ConstantPreparedStatementDataProvider;
 import com.helger.db.jdbc.executor.DBResultRow;
-import com.helger.phoss.ap.api.IInboundForwardingAttempt;
+import com.helger.phoss.ap.api.IInboundForwardingAttemptManager;
 import com.helger.phoss.ap.api.codelist.EAttemptStatus;
 import com.helger.phoss.ap.api.datetime.IAPTimestampManager;
+import com.helger.phoss.ap.api.model.IInboundForwardingAttempt;
 import com.helger.phoss.ap.db.dto.InboundForwardingAttemptRow;
 
-public class InboundForwardingAttemptManagerJDBC extends AbstractAPJDBCManager
+public class InboundForwardingAttemptManagerJDBC extends AbstractAPJDBCManager implements IInboundForwardingAttemptManager
 {
   private static final String COLS = "id, inbound_transaction_id, attempt_dt, attempt_status, error_code, error_details";
 
@@ -61,22 +62,19 @@ public class InboundForwardingAttemptManagerJDBC extends AbstractAPJDBCManager
     return nRowsAffected == 0 ? null : sID;
   }
 
-  @Nullable
-  public String createSuccess (@NonNull final String sInboundTransactionID)
+  public String createSuccess (final String sInboundTransactionID)
   {
     return create (sInboundTransactionID, EAttemptStatus.SUCCESS, null, null);
   }
 
-  @Nullable
-  public String createFailure (@NonNull final String sInboundTransactionID,
-                               @Nullable final String sErrorCode,
-                               @Nullable final String sErrorDetails)
+  public String createFailure (final String sInboundTransactionID,
+                               final String sErrorCode,
+                               final String sErrorDetails)
   {
     return create (sInboundTransactionID, EAttemptStatus.FAILED, sErrorCode, sErrorDetails);
   }
 
-  @NonNull
-  public ICommonsList <IInboundForwardingAttempt> getByTransactionID (@NonNull final String sInboundTransactionID)
+  public ICommonsList <IInboundForwardingAttempt> getByTransactionID (final String sInboundTransactionID)
   {
     final ICommonsList <DBResultRow> aRows = newExecutor ().queryAll ("SELECT " +
                                                                       COLS +

@@ -23,6 +23,11 @@ import org.slf4j.LoggerFactory;
 import com.helger.annotation.style.UsedViaReflection;
 import com.helger.base.exception.InitializationException;
 import com.helger.base.lang.clazz.ClassHelper;
+import com.helger.phoss.ap.api.IArchivalManager;
+import com.helger.phoss.ap.api.IInboundForwardingAttemptManager;
+import com.helger.phoss.ap.api.IInboundTransactionManager;
+import com.helger.phoss.ap.api.IOutboundSendingAttemptManager;
+import com.helger.phoss.ap.api.IOutboundTransactionManager;
 import com.helger.phoss.ap.api.datetime.IAPTimestampManager;
 import com.helger.phoss.ap.db.flyway.APFlywayMigrator;
 import com.helger.scope.IScope;
@@ -42,8 +47,8 @@ public final class APMetaJDBCManager extends AbstractGlobalSingleton
   private OutboundTransactionManagerJDBC m_aOutboundTxMgr;
   private OutboundSendingAttemptManagerJDBC m_aOutboundAttemptMgr;
   private InboundTransactionManagerJDBC m_aInboundTxMgr;
-  private InboundForwardingAttemptManagerJDBC m_aInboundAttemptMgr;
-  private ArchivalManagerJDBC m_aArchivalMgr;
+  private IInboundForwardingAttemptManager m_aInboundAttemptMgr;
+  private IArchivalManager m_aArchivalMgr;
 
   /**
    * @deprecated Only called via reflection
@@ -113,31 +118,31 @@ public final class APMetaJDBCManager extends AbstractGlobalSingleton
   }
 
   @NonNull
-  public static OutboundTransactionManagerJDBC getOutboundTransactionMgr ()
+  public static IOutboundTransactionManager getOutboundTransactionMgr ()
   {
     return getInstance ().m_aOutboundTxMgr;
   }
 
   @NonNull
-  public static OutboundSendingAttemptManagerJDBC getOutboundSendingAttemptMgr ()
+  public static IOutboundSendingAttemptManager getOutboundSendingAttemptMgr ()
   {
     return getInstance ().m_aOutboundAttemptMgr;
   }
 
   @NonNull
-  public static InboundTransactionManagerJDBC getInboundTransactionMgr ()
+  public static IInboundTransactionManager getInboundTransactionMgr ()
   {
     return getInstance ().m_aInboundTxMgr;
   }
 
   @NonNull
-  public static InboundForwardingAttemptManagerJDBC getInboundForwardingAttemptMgr ()
+  public static IInboundForwardingAttemptManager getInboundForwardingAttemptMgr ()
   {
     return getInstance ().m_aInboundAttemptMgr;
   }
 
   @NonNull
-  public static ArchivalManagerJDBC getArchivalMgr ()
+  public static IArchivalManager getArchivalMgr ()
   {
     return getInstance ().m_aArchivalMgr;
   }

@@ -31,11 +31,11 @@ import com.helger.db.jdbc.executor.DBExecutor;
 import com.helger.db.jdbc.executor.DBResultRow;
 import com.helger.peppol.mls.EPeppolMLSResponseCode;
 import com.helger.peppol.sbdh.EPeppolMLSType;
-import com.helger.phoss.ap.api.IInboundTransaction;
 import com.helger.phoss.ap.api.IInboundTransactionManager;
 import com.helger.phoss.ap.api.codelist.EInboundStatus;
 import com.helger.phoss.ap.api.codelist.EReportingStatus;
 import com.helger.phoss.ap.api.datetime.IAPTimestampManager;
+import com.helger.phoss.ap.api.model.IInboundTransaction;
 import com.helger.phoss.ap.db.dto.InboundTransactionRow;
 
 public class InboundTransactionManagerJDBC extends AbstractAPJDBCManager implements IInboundTransactionManager

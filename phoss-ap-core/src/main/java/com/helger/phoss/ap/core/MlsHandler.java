@@ -25,14 +25,14 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.peppol.mls.EPeppolMLSResponseCode;
 import com.helger.peppol.sbdh.EPeppolMLSType;
-import com.helger.phoss.ap.api.IInboundTransaction;
-import com.helger.phoss.ap.api.IOutboundTransaction;
+import com.helger.phoss.ap.api.IInboundTransactionManager;
+import com.helger.phoss.ap.api.IOutboundTransactionManager;
 import com.helger.phoss.ap.api.codelist.EMlsReceptionStatus;
 import com.helger.phoss.ap.api.codelist.ESourceType;
 import com.helger.phoss.ap.api.codelist.ETransactionType;
+import com.helger.phoss.ap.api.model.IInboundTransaction;
+import com.helger.phoss.ap.api.model.IOutboundTransaction;
 import com.helger.phoss.ap.db.APMetaJDBCManager;
-import com.helger.phoss.ap.db.InboundTransactionManagerJDBC;
-import com.helger.phoss.ap.db.OutboundTransactionManagerJDBC;
 
 public final class MlsHandler
 {
@@ -45,7 +45,7 @@ public final class MlsHandler
                                            @NonNull final EPeppolMLSResponseCode eResponseCode)
   {
     final EPeppolMLSType eMlsType = aTx.getMlsType ();
-    final InboundTransactionManagerJDBC aInboundMgr = APMetaJDBCManager.getInboundTransactionMgr ();
+    final IInboundTransactionManager aInboundMgr = APMetaJDBCManager.getInboundTransactionMgr ();
 
     // Determine if we should send MLS
     if (eMlsType == EPeppolMLSType.FAILURE_ONLY && eResponseCode != EPeppolMLSResponseCode.REJECTION)
@@ -62,7 +62,7 @@ public final class MlsHandler
     LOGGER.info ("Creating MLS response (" + eResponseCode.getID () + ") for inbound transaction: " + aTx.getID ());
 
     // Create an outbound transaction for the MLS response
-    final OutboundTransactionManagerJDBC aOutboundMgr = APMetaJDBCManager.getOutboundTransactionMgr ();
+    final IOutboundTransactionManager aOutboundMgr = APMetaJDBCManager.getOutboundTransactionMgr ();
 
     // MLS response bytes would be created from peppol-mls library
     // For now, placeholder
@@ -94,7 +94,7 @@ public final class MlsHandler
   {
     LOGGER.info ("Received MLS response (" + eResponseCode.getID () + ") for SBDH '" + sSbdhInstanceID + "'");
 
-    final OutboundTransactionManagerJDBC aOutboundMgr = APMetaJDBCManager.getOutboundTransactionMgr ();
+    final IOutboundTransactionManager aOutboundMgr = APMetaJDBCManager.getOutboundTransactionMgr ();
     final IOutboundTransaction aTx = aOutboundMgr.getBySbdhInstanceID (sSbdhInstanceID);
     if (aTx == null)
     {

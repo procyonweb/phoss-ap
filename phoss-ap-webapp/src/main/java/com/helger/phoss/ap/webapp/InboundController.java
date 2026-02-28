@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.helger.phoss.ap.api.IInboundTransaction;
+import com.helger.phoss.ap.api.model.IInboundTransaction;
 import com.helger.phoss.ap.db.APMetaJDBCManager;
 import com.helger.phoss.ap.webapp.dto.InboundTransactionResponse;
 import com.helger.phoss.ap.webapp.dto.ReportResponse;

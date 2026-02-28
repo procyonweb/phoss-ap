@@ -20,7 +20,7 @@ import org.jspecify.annotations.NonNull;
 
 import com.helger.annotation.style.IsSPIInterface;
 import com.helger.base.state.ESuccess;
-import com.helger.phoss.ap.api.IInboundTransaction;
+import com.helger.phoss.ap.api.model.IInboundTransaction;
 
 /**
  * SPI interface for forwarding received inbound documents to the Receiver

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.phoss.ap.core;
+package com.helger.phoss.ap.core.job;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -23,10 +23,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.collection.commons.ICommonsList;
-import com.helger.phoss.ap.api.IInboundTransaction;
-import com.helger.phoss.ap.api.IOutboundTransaction;
+import com.helger.phoss.ap.api.IArchivalManager;
+import com.helger.phoss.ap.api.model.IInboundTransaction;
+import com.helger.phoss.ap.api.model.IOutboundTransaction;
+import com.helger.phoss.ap.core.APCoreConfig;
 import com.helger.phoss.ap.db.APMetaJDBCManager;
-import com.helger.phoss.ap.db.ArchivalManagerJDBC;
 
 public final class ArchivalScheduler
 {
@@ -47,7 +48,7 @@ public final class ArchivalScheduler
       if (aTransactions.isNotEmpty ())
       {
         LOGGER.info ("Archiving " + aTransactions.size () + " outbound transactions");
-        final ArchivalManagerJDBC aArchivalMgr = APMetaJDBCManager.getArchivalMgr ();
+        final IArchivalManager aArchivalMgr = APMetaJDBCManager.getArchivalMgr ();
         for (final IOutboundTransaction aTx : aTransactions)
         {
           aArchivalMgr.archiveOutboundTransaction (aTx.getID ());
@@ -69,7 +70,7 @@ public final class ArchivalScheduler
       if (aTransactions.isNotEmpty ())
       {
         LOGGER.info ("Archiving " + aTransactions.size () + " inbound transactions");
-        final ArchivalManagerJDBC aArchivalMgr = APMetaJDBCManager.getArchivalMgr ();
+        final IArchivalManager aArchivalMgr = APMetaJDBCManager.getArchivalMgr ();
         for (final IInboundTransaction aTx : aTransactions)
         {
           aArchivalMgr.archiveInboundTransaction (aTx.getID ());

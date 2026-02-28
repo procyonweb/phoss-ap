@@ -24,18 +24,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.phase4.model.message.MessageHelperMethods;
-import com.helger.phoss.ap.api.IOutboundTransaction;
+import com.helger.phoss.ap.api.IOutboundSendingAttemptManager;
+import com.helger.phoss.ap.api.IOutboundTransactionManager;
 import com.helger.phoss.ap.api.codelist.EAttemptStatus;
 import com.helger.phoss.ap.api.codelist.EOutboundStatus;
 import com.helger.phoss.ap.api.codelist.ESourceType;
 import com.helger.phoss.ap.api.codelist.ETransactionType;
 import com.helger.phoss.ap.api.datetime.IAPTimestampManager;
-import com.helger.phoss.ap.api.spi.IDocumentVerifierSPI;
+import com.helger.phoss.ap.api.model.IOutboundTransaction;
+import com.helger.phoss.ap.api.spi.IOutboundDocumentVerifierSPI;
 import com.helger.phoss.ap.core.helper.BackoffCalculator;
 import com.helger.phoss.ap.core.helper.HashHelper;
 import com.helger.phoss.ap.db.APMetaJDBCManager;
-import com.helger.phoss.ap.db.OutboundSendingAttemptManagerJDBC;
-import com.helger.phoss.ap.db.OutboundTransactionManagerJDBC;
 
 public final class OutboundOrchestrator
 {
@@ -61,7 +61,7 @@ public final class OutboundOrchestrator
     // Optional verification
     if (APCoreConfig.isVerificationOutboundEnabled ())
     {
-      for (final IDocumentVerifierSPI aVerifier : APMetaManager.getAllVerifiers ())
+      for (final IOutboundDocumentVerifierSPI aVerifier : APMetaManager.getAllOutboundVerifiers ())
       {
         if (aVerifier.verifyDocument (aDocumentBytes, sDocTypeID, sProcessID).isFailure ())
         {
@@ -71,7 +71,7 @@ public final class OutboundOrchestrator
       }
     }
 
-    final OutboundTransactionManagerJDBC aMgr = APMetaJDBCManager.getOutboundTransactionMgr ();
+    final IOutboundTransactionManager aMgr = APMetaJDBCManager.getOutboundTransactionMgr ();
     // Create in pending state
     final String sTransactionID = aMgr.create (ETransactionType.BUSINESS_DOCUMENT,
                                                sSenderID,
@@ -103,7 +103,7 @@ public final class OutboundOrchestrator
 
     final String sDocumentHash = HashHelper.sha256Hex (aSbdBytes);
 
-    final OutboundTransactionManagerJDBC aMgr = APMetaJDBCManager.getOutboundTransactionMgr ();
+    final IOutboundTransactionManager aMgr = APMetaJDBCManager.getOutboundTransactionMgr ();
     // Create in pending state
     final String sTransactionID = aMgr.create (ETransactionType.BUSINESS_DOCUMENT,
                                                sSenderID,
@@ -125,10 +125,10 @@ public final class OutboundOrchestrator
   {
     final String sID = aTx.getID ();
     final IAPTimestampManager aTimestampMgr = APMetaJDBCManager.getTimestampMgr ();
-    final OutboundTransactionManagerJDBC aTxMgr = APMetaJDBCManager.getOutboundTransactionMgr ();
-    final OutboundSendingAttemptManagerJDBC aAttemptMgr = APMetaJDBCManager.getOutboundSendingAttemptMgr ();
+    final IOutboundTransactionManager aTxMgr = APMetaJDBCManager.getOutboundTransactionMgr ();
+    final IOutboundSendingAttemptManager aAttemptMgr = APMetaJDBCManager.getOutboundSendingAttemptMgr ();
 
-    LOGGER.info ("Processing outbound transaction: " + sID);
+    LOGGER.info ("Processing outbound transaction '" + sID + "'");
 
     aTxMgr.updateStatus (sID, EOutboundStatus.SENDING);
 
