@@ -56,6 +56,7 @@ public final class APConfigurationProperties
   public static final long JDBC_POOLING_REMOVE_ABANDONED_TIMEOUT_MILLIS_DEFAULT = 300_000L;
 
   // Forwarding
+  public static final String FORWARDING_MODE = "forwarding.mode";
   public static final String FORWARDING_HTTP_MODE = "forwarding.http.mode";
   public static final String FORWARDING_HTTP_ENDPOINT = "forwarding.http.endpoint";
 

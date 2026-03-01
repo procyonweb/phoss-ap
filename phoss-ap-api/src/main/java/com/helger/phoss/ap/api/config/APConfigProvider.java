@@ -90,7 +90,7 @@ public final class APConfigProvider
     {
       RW_LOCK.writeLock ().unlock ();
     }
-    LOGGER.info ("AP configuration provider was changed");
+    LOGGER.info ("phoss AP configuration provider was changed");
     return aOld;
   }
 }

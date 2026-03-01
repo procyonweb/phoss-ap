@@ -52,5 +52,32 @@
       <groupId>com.helger.peppol</groupId>
       <artifactId>peppol-mls</artifactId>
     </dependency>
+    
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
+  
+  <build>
+    <resources>
+      <!-- Don't specify the targetPath because this leads to a broken JAR file 
+        in combination with the bundle plugin (absolute file paths in ZIP file) -->
+      <resource>
+        <directory>${basedir}/src/main/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>**/*.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/main/resources</directory>
+        <filtering>false</filtering>
+        <excludes>
+          <exclude>**/*.properties</exclude>
+        </excludes>
+      </resource>
+    </resources>
+  </build>
 </project>
