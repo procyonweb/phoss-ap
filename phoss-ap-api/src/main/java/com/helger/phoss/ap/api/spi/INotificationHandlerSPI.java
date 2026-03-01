@@ -60,6 +60,26 @@ public interface INotificationHandlerSPI
                                   @Nullable String sErrorDetails);
 
   /**
+   * Called when an inbound receiver is not serviced.
+   *
+   * @param sSenderID
+   *        Peppol sender ID (C1). Never <code>null</code>.
+   * @param sReceiverID
+   *        Peppol receiver ID (C4). Never <code>null</code>.
+   * @param sDocTypeID
+   *        Peppol document type ID. Never <code>null</code>.
+   * @param sProcessID
+   *        Peppol process ID. Never <code>null</code>.
+   * @param sSbdhInstanceID
+   *        SBDH Instance Identifier. Never <code>null</code>.
+   */
+  void onInboundReceiverNotServiced (@NonNull String sSenderID,
+                                     @NonNull String sReceiverID,
+                                     @NonNull String sDocTypeID,
+                                     @NonNull String sProcessID,
+                                     @NonNull String sSbdhInstanceID);
+
+  /**
    * Called when an inbound transaction permanently fails after exhausting all forwarding retries.
    *
    * @param sTransactionID

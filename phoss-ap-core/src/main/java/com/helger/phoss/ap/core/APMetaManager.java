@@ -34,6 +34,7 @@ import com.helger.phoss.ap.api.spi.IInboundDocumentVerifierSPI;
 import com.helger.phoss.ap.api.spi.INotificationHandlerSPI;
 import com.helger.phoss.ap.api.spi.IOutboundDocumentVerifierSPI;
 import com.helger.phoss.ap.api.spi.IPeppolReceiverCheckSPI;
+import com.helger.phoss.ap.api.spi.SafeNotificationHandler;
 
 public final class APMetaManager
 {
@@ -88,7 +89,7 @@ public final class APMetaManager
 
     for (final INotificationHandlerSPI aHandler : ServiceLoader.load (INotificationHandlerSPI.class))
     {
-      s_aNotificationHandlers.add (aHandler);
+      s_aNotificationHandlers.add (new SafeNotificationHandler (aHandler));
       LOGGER.info ("Loaded notification handler: " + aHandler.getClass ().getName ());
     }
 

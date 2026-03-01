@@ -231,6 +231,10 @@ public class Phase4InboundMessageProcessorSPI implements IPhase4PeppolIncomingSB
                                                                                .refToMessageInError (aIncomingState.getMessageID ())
                                                                                .errorDetail ("PEPPOL:NOT_SERVICED"))
                                               .build ());
+
+        for (final var aHandler : APMetaManager.getAllNotificationHandlers ())
+          aHandler.onInboundReceiverNotServiced (sSenderID, sReceiverID, sDocTypeID, sProcessID, sSbdhInstanceID);
+
         return;
       }
     }
