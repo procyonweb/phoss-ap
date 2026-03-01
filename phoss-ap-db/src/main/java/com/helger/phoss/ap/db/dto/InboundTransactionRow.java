@@ -47,7 +47,7 @@ public class InboundTransactionRow implements IInboundTransaction
   private final String m_sReceiverID;
   private final String m_sDocTypeID;
   private final String m_sProcessID;
-  private final byte [] m_aDocumentBytes;
+  private final String m_sDocumentPath;
   private final long m_nDocumentSize;
   private final String m_sDocumentHash;
   private final String m_sAS4MessageID;
@@ -80,7 +80,7 @@ public class InboundTransactionRow implements IInboundTransaction
     m_sReceiverID = aRow.getAsString (6);
     m_sDocTypeID = aRow.getAsString (7);
     m_sProcessID = aRow.getAsString (8);
-    m_aDocumentBytes = aRow.getAsByteArray (9);
+    m_sDocumentPath = aRow.getAsString (9);
     m_nDocumentSize = aRow.getAsLong (10);
     m_sDocumentHash = aRow.getAsString (11);
     m_sAS4MessageID = aRow.getAsString (12);
@@ -110,7 +110,7 @@ public class InboundTransactionRow implements IInboundTransaction
     ValueEnforcer.notEmpty (m_sReceiverID, "ReceiverID");
     ValueEnforcer.notEmpty (m_sDocTypeID, "DocTypeID");
     ValueEnforcer.notEmpty (m_sProcessID, "ProcessID");
-    ValueEnforcer.notNull (m_aDocumentBytes, "DocumentBytes");
+    ValueEnforcer.notEmpty (m_sDocumentPath, "DocumentPath");
     ValueEnforcer.isGE0 (m_nDocumentSize, "DocumentSize");
     ValueEnforcer.notEmpty (m_sDocumentHash, "DocumentHash");
     ValueEnforcer.notEmpty (m_sAS4MessageID, "AS4MessageID");
@@ -186,9 +186,11 @@ public class InboundTransactionRow implements IInboundTransaction
     return m_sProcessID;
   }
 
-  public byte @NonNull [] getDocumentBytes ()
+  @NonNull
+  @Nonempty
+  public String getDocumentPath ()
   {
-    return m_aDocumentBytes;
+    return m_sDocumentPath;
   }
 
   @Nonnegative

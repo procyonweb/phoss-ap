@@ -57,8 +57,8 @@ public interface IOutboundTransactionManager
    * @param eSourceType
    *        Source type indicating how the document was submitted (raw XML or pre-built SBD). Never
    *        <code>null</code>.
-   * @param aDocumentBytes
-   *        Raw document bytes. Never <code>null</code>.
+   * @param sDocumentPath
+   *        Absolute path to the document file on disk. Never <code>null</code>.
    * @param nDocumentSize
    *        Size of the document in bytes.
    * @param sDocumentHash
@@ -79,7 +79,7 @@ public interface IOutboundTransactionManager
                  @NonNull String sProcessID,
                  @NonNull String sSbdhInstanceID,
                  @NonNull ESourceType eSourceType,
-                 byte @NonNull [] aDocumentBytes,
+                 @NonNull String sDocumentPath,
                  @Nonnegative long nDocumentSize,
                  @NonNull String sDocumentHash,
                  @NonNull String sC1CountryCode,

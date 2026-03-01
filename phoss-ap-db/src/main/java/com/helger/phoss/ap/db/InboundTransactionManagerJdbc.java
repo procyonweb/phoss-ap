@@ -42,7 +42,7 @@ public class InboundTransactionManagerJdbc extends AbstractAPJdbcManager impleme
 {
   private static final String COLS = "id, incoming_id, c2_seat_id, c3_seat_id, signing_cert_cn," +
                                      " sender_id, receiver_id, doc_type_id, process_id," +
-                                     " document_bytes, document_size, document_hash," +
+                                     " document_path, document_size, document_hash," +
                                      " as4_message_id, as4_timestamp, sbdh_instance_id," +
                                      " c1_country_code, c4_country_code, is_duplicate_as4, is_duplicate_sbdh," +
                                      " status, attempt_count, received_dt, completed_dt," +
@@ -67,7 +67,7 @@ public class InboundTransactionManagerJdbc extends AbstractAPJdbcManager impleme
                         @NonNull final String sReceiverID,
                         @NonNull final String sDocTypeID,
                         @NonNull final String sProcessID,
-                        final byte @NonNull [] aDocumentBytes,
+                        @NonNull final String sDocumentPath,
                         @Nonnegative final long nDocumentSize,
                         @NonNull final String sDocumentHash,
                         @NonNull final String sAS4MessageID,
@@ -98,7 +98,7 @@ public class InboundTransactionManagerJdbc extends AbstractAPJdbcManager impleme
                                                                                                             sReceiverID,
                                                                                                             sDocTypeID,
                                                                                                             sProcessID,
-                                                                                                            aDocumentBytes,
+                                                                                                            sDocumentPath,
                                                                                                             Long.valueOf (nDocumentSize),
                                                                                                             sDocumentHash,
                                                                                                             sAS4MessageID,

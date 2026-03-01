@@ -16,11 +16,12 @@
  */
 package com.helger.phoss.ap.forwarding.http;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
+import org.apache.hc.core5.http.io.entity.FileEntity;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,7 +87,7 @@ public class HttpDocumentForwarderSPI implements IDocumentForwarderSPI
     try (final HttpClientManager aHttpClientMgr = new HttpClientManager ())
     {
       final HttpPost aPost = new HttpPost (m_sEndpointURL);
-      aPost.setEntity (new ByteArrayEntity (aTransaction.getDocumentBytes (), ContentType.APPLICATION_XML));
+      aPost.setEntity (new FileEntity (new File (aTransaction.getDocumentPath ()), ContentType.APPLICATION_XML));
 
       LOGGER.info ("Forwarding inbound transaction '" +
                    aTransaction.getID () +

@@ -238,6 +238,19 @@ public final class APCoreConfig
                                        APConfigurationProperties.NOTIFICATION_ENABLED_DEFAULT);
   }
 
+  // Document storage
+  @NonNull
+  public static String getStorageInboundPath ()
+  {
+    return _getConfig ().getAsString (APConfigurationProperties.STORAGE_INBOUND_PATH, "/var/phoss-ap/inbound");
+  }
+
+  @NonNull
+  public static String getStorageOutboundPath ()
+  {
+    return _getConfig ().getAsString (APConfigurationProperties.STORAGE_OUTBOUND_PATH, "/var/phoss-ap/outbound");
+  }
+
   // Startup recovery
   public static boolean isStartupRecoveryEnabled ()
   {

@@ -138,6 +138,10 @@ public final class APConfigurationProperties
   public static final String HTTP_PROXY_PASSWORD = "http.proxy.password";
   public static final String HTTP_PROXY_NON_PROXY_HOSTS = "http.proxy.nonProxyHosts";
 
+  // Document storage
+  public static final String STORAGE_INBOUND_PATH = "storage.inbound.path";
+  public static final String STORAGE_OUTBOUND_PATH = "storage.outbound.path";
+
   // Shutdown / Startup
   public static final String SHUTDOWN_TIMEOUT_MS = "shutdown.timeout.ms";
   public static final long SHUTDOWN_TIMEOUT_MS_DEFAULT = 30_000L;

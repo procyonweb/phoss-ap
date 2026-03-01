@@ -94,9 +94,11 @@ public interface IOutboundTransaction extends IHasID <String>
   ESourceType getSourceType ();
 
   /**
-   * @return The raw document bytes. Never <code>null</code>.
+   * @return The absolute path to the document file on disk. Never <code>null</code>.
    */
-  byte @NonNull [] getDocumentBytes ();
+  @NonNull
+  @Nonempty
+  String getDocumentPath ();
 
   /**
    * @return The size of the document in bytes. Must be &ge; 0.

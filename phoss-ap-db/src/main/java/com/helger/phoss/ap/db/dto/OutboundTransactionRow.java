@@ -47,7 +47,7 @@ public class OutboundTransactionRow implements IOutboundTransaction
   private final String m_sProcessID;
   private final String m_sSbdhInstanceID;
   private final ESourceType m_eSourceType;
-  private final byte [] m_aDocumentBytes;
+  private final String m_sDocumentPath;
   private final long m_nDocumentSize;
   private final String m_sDocumentHash;
   private final String m_sC1CountryCode;
@@ -74,7 +74,7 @@ public class OutboundTransactionRow implements IOutboundTransaction
     m_sProcessID = aRow.getAsString (5);
     m_sSbdhInstanceID = aRow.getAsString (6);
     m_eSourceType = ESourceType.getFromIDOrNull (aRow.getAsString (7));
-    m_aDocumentBytes = aRow.getAsByteArray (8);
+    m_sDocumentPath = aRow.getAsString (8);
     m_nDocumentSize = aRow.getAsLong (9);
     m_sDocumentHash = aRow.getAsString (10);
     m_sC1CountryCode = aRow.getAsString (11);
@@ -98,7 +98,7 @@ public class OutboundTransactionRow implements IOutboundTransaction
     ValueEnforcer.notEmpty (m_sProcessID, "ProcessID");
     ValueEnforcer.notEmpty (m_sSbdhInstanceID, "SbdhInstanceID");
     ValueEnforcer.notNull (m_eSourceType, "SourceType");
-    ValueEnforcer.notNull (m_aDocumentBytes, "DocumentBytes");
+    ValueEnforcer.notEmpty (m_sDocumentPath, "DocumentPath");
     ValueEnforcer.isGE0 (m_nDocumentSize, "DocumentSize");
     ValueEnforcer.notEmpty (m_sDocumentHash, "DocumentHash");
     ValueEnforcer.notEmpty (m_sC1CountryCode, "C1CountryCode");
@@ -162,9 +162,11 @@ public class OutboundTransactionRow implements IOutboundTransaction
     return m_eSourceType;
   }
 
-  public byte @NonNull [] getDocumentBytes ()
+  @NonNull
+  @Nonempty
+  public String getDocumentPath ()
   {
-    return m_aDocumentBytes;
+    return m_sDocumentPath;
   }
 
   @Nonnegative

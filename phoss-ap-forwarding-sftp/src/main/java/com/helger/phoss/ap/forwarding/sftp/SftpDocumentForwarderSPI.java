@@ -34,6 +34,7 @@ import com.helger.base.tostring.ToStringGenerator;
 import com.helger.config.fallback.IConfigWithFallback;
 import com.helger.io.file.FilenameHelper;
 import com.helger.network.WebExceptionHelper;
+import com.helger.phoss.ap.basic.storage.DocumentStorageHelper;
 import com.helger.phoss.ap.api.model.ForwardingResult;
 import com.helger.phoss.ap.api.model.IInboundTransaction;
 import com.helger.phoss.ap.api.spi.IDocumentForwarderSPI;
@@ -266,7 +267,7 @@ public class SftpDocumentForwarderSPI implements IDocumentForwarderSPI
       return writeUploadedFile (m_aSftpSettings,
                                 "",
                                 sTargetFilename,
-                                HasInputStream.create (aTransaction.getDocumentBytes ()));
+                                HasInputStream.create (DocumentStorageHelper.readDocument (aTransaction.getDocumentPath ())));
     }
     catch (final Exception ex)
     {

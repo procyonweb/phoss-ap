@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.helger.collection.commons.ICommonsList;
+import com.helger.phoss.ap.api.IOutboundTransactionManager;
 import com.helger.phoss.ap.api.model.IOutboundTransaction;
 import com.helger.phoss.ap.core.OutboundOrchestrator;
 import com.helger.phoss.ap.db.APJdbcMetaManager;
@@ -92,8 +94,8 @@ public class OutboundController
   @GetMapping ("/status/{sbdhInstanceID}")
   public ResponseEntity <OutboundTransactionResponse> getStatus (@PathVariable final String sbdhInstanceID)
   {
-    final IOutboundTransaction aTx = APJdbcMetaManager.getOutboundTransactionMgr ()
-                                                      .getBySbdhInstanceID (sbdhInstanceID);
+    final IOutboundTransactionManager aTxMgr = APJdbcMetaManager.getOutboundTransactionMgr ();
+    final IOutboundTransaction aTx = aTxMgr.getBySbdhInstanceID (sbdhInstanceID);
     if (aTx == null)
       return ResponseEntity.notFound ().build ();
 
@@ -103,8 +105,9 @@ public class OutboundController
   @GetMapping ("/in-transmission")
   public ResponseEntity <List <OutboundTransactionResponse>> getInTransmission ()
   {
-    final var aTxs = APJdbcMetaManager.getOutboundTransactionMgr ().getAllInTransmission ();
-    final List <OutboundTransactionResponse> aResult = aTxs.getAllMapped (OutboundTransactionResponse::fromDomain);
+    final IOutboundTransactionManager aTxMgr = APJdbcMetaManager.getOutboundTransactionMgr ();
+    final var aTxs = aTxMgr.getAllInTransmission ();
+    final ICommonsList <OutboundTransactionResponse> aResult = aTxs.getAllMapped (OutboundTransactionResponse::fromDomain);
     return ResponseEntity.ok (aResult);
   }
 }

@@ -37,6 +37,10 @@
       <artifactId>phoss-ap-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.helger.phoss.ap</groupId>
+      <artifactId>phoss-ap-basic</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.helger.web</groupId>
       <artifactId>ph-jsch</artifactId>
     </dependency>

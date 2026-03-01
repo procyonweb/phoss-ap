@@ -52,7 +52,7 @@ public class OutboundTransactionManagerJdbc extends AbstractAPJdbcManager implem
   private static final Logger LOGGER = LoggerFactory.getLogger (OutboundTransactionManagerJdbc.class);
 
   private static final String COLS = "id, transaction_type, sender_id, receiver_id, doc_type_id, process_id," +
-                                     " sbdh_instance_id, source_type, document_bytes, document_size, document_hash," +
+                                     " sbdh_instance_id, source_type, document_path, document_size, document_hash," +
                                      " c1_country_code, status, attempt_count, created_dt, completed_dt," +
                                      " reporting_status, next_retry_dt, error_details, mls_to, mls_status," +
                                      " mls_received_dt, mls_id, mls_inbound_transaction_id";
@@ -74,7 +74,7 @@ public class OutboundTransactionManagerJdbc extends AbstractAPJdbcManager implem
                         @NonNull final String sProcessID,
                         @NonNull final String sSbdhInstanceID,
                         @NonNull final ESourceType eSourceType,
-                        final byte @NonNull [] aDocumentBytes,
+                        @NonNull final String sDocumentPath,
                         @Nonnegative final long nDocumentSize,
                         @NonNull final String sDocumentHash,
                         @NonNull final String sC1CountryCode,
@@ -99,7 +99,7 @@ public class OutboundTransactionManagerJdbc extends AbstractAPJdbcManager implem
                                                                                                             sProcessID,
                                                                                                             sSbdhInstanceID,
                                                                                                             eSourceType.getID (),
-                                                                                                            aDocumentBytes,
+                                                                                                            sDocumentPath,
                                                                                                             Long.valueOf (nDocumentSize),
                                                                                                             sDocumentHash,
                                                                                                             sC1CountryCode,

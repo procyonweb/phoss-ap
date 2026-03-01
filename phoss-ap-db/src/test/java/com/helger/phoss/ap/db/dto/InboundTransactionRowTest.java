@@ -16,7 +16,6 @@
  */
 package com.helger.phoss.ap.db.dto;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -51,7 +50,6 @@ public final class InboundTransactionRowTest
   private static DBResultRow _createValidRow ()
   {
     final OffsetDateTime aNow = APBasicMetaManager.getTimestampMgr ().getCurrentDateTime ();
-    final byte [] aDocBytes = { 4, 5, 6 };
 
     // 30 columns, matching InboundTransactionRow constructor order
     // 0 id
@@ -63,7 +61,7 @@ public final class InboundTransactionRowTest
     // 6 receiverID
     // 7 docTypeID
     // 8 processID
-    // 9 documentBytes
+    // 9 documentPath
     // 10 documentSize
     // 11 documentHash
     // 12 as4MessageID
@@ -93,7 +91,7 @@ public final class InboundTransactionRowTest
                                         "iso6523-actorid-upis::recv",
                                         "busdox-docid-qns::inv",
                                         "cenbii-procid-ubl::proc",
-                                        aDocBytes,
+                                        "/tmp/test-inbound.sbd",
                                         Long.valueOf (3L),
                                         "def456hash",
                                         "as4-msg-001@sender.example",
@@ -130,7 +128,7 @@ public final class InboundTransactionRowTest
     assertEquals ("iso6523-actorid-upis::recv", aTx.getReceiverID ());
     assertEquals ("busdox-docid-qns::inv", aTx.getDocTypeID ());
     assertEquals ("cenbii-procid-ubl::proc", aTx.getProcessID ());
-    assertArrayEquals (new byte [] { 4, 5, 6 }, aTx.getDocumentBytes ());
+    assertEquals ("/tmp/test-inbound.sbd", aTx.getDocumentPath ());
     assertEquals (3L, aTx.getDocumentSize ());
     assertEquals ("def456hash", aTx.getDocumentHash ());
     assertEquals ("as4-msg-001@sender.example", aTx.getAS4MessageID ());
@@ -164,7 +162,6 @@ public final class InboundTransactionRowTest
   public void testDuplicateFlags ()
   {
     final OffsetDateTime aNow = APBasicMetaManager.getTimestampMgr ().getCurrentDateTime ();
-    final byte [] aDocBytes = { 7 };
 
     final DBResultRow aRow = DBResultRowHelper.createRow ("ib-dup",
                                                           "inc-dup",
@@ -175,7 +172,7 @@ public final class InboundTransactionRowTest
                                                           "recv-dup",
                                                           "doctype-dup",
                                                           "process-dup",
-                                                          aDocBytes,
+                                                          "/tmp/test-dup.sbd",
                                                           Long.valueOf (1L),
                                                           "hash-dup",
                                                           "as4-dup@test",

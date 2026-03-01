@@ -102,9 +102,11 @@ public interface IInboundTransaction extends IHasID <String>
   String getProcessID ();
 
   /**
-   * @return The raw document bytes (complete SBD). Never <code>null</code>.
+   * @return The absolute path to the document file on disk. Never <code>null</code>.
    */
-  byte @NonNull [] getDocumentBytes ();
+  @NonNull
+  @Nonempty
+  String getDocumentPath ();
 
   /**
    * @return The size of the document in bytes.

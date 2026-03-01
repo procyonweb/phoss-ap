@@ -16,6 +16,8 @@
  */
 package com.helger.phoss.ap.forwarding.s3;
 
+import java.nio.file.Path;
+
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,7 +94,7 @@ public class S3DocumentForwarderSPI implements IDocumentForwarderSPI
                                                          .contentType ("application/xml")
                                                          .build ();
 
-        aS3Client.putObject (aPutReq, RequestBody.fromBytes (aTransaction.getDocumentBytes ()));
+        aS3Client.putObject (aPutReq, RequestBody.fromFile (Path.of (aTransaction.getDocumentPath ())));
 
         LOGGER.info ("Uploaded transaction '" +
                      aTransaction.getID () +

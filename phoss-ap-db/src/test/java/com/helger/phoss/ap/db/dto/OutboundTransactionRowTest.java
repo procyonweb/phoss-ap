@@ -16,7 +16,6 @@
  */
 package com.helger.phoss.ap.db.dto;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -51,7 +50,6 @@ public final class OutboundTransactionRowTest
   private static DBResultRow _createValidRow ()
   {
     final OffsetDateTime aNow = APBasicMetaManager.getTimestampMgr ().getCurrentDateTime ();
-    final byte [] aDocBytes = { 1, 2, 3 };
 
     // 24 columns, matching OutboundTransactionRow constructor order
     // 0 id
@@ -62,7 +60,7 @@ public final class OutboundTransactionRowTest
     // 5 processID
     // 6 sbdhInstanceID
     // 7 sourceType
-    // 8 documentBytes
+    // 8 documentPath
     // 9 documentSize
     // 10 documentHash
     // 11 c1CountryCode
@@ -86,7 +84,7 @@ public final class OutboundTransactionRowTest
                                         "cenbii-procid-ubl::proc",
                                         "sbdh-001",
                                         "raw_xml",
-                                        aDocBytes,
+                                        "/tmp/test-outbound.sbd",
                                         Long.valueOf (3L),
                                         "abc123hash",
                                         "DE",
@@ -118,7 +116,7 @@ public final class OutboundTransactionRowTest
     assertEquals ("cenbii-procid-ubl::proc", aTx.getProcessID ());
     assertEquals ("sbdh-001", aTx.getSbdhInstanceID ());
     assertEquals (ESourceType.RAW_XML, aTx.getSourceType ());
-    assertArrayEquals (new byte [] { 1, 2, 3 }, aTx.getDocumentBytes ());
+    assertEquals ("/tmp/test-outbound.sbd", aTx.getDocumentPath ());
     assertEquals (3L, aTx.getDocumentSize ());
     assertEquals ("abc123hash", aTx.getDocumentHash ());
     assertEquals ("DE", aTx.getC1CountryCode ());
@@ -148,7 +146,6 @@ public final class OutboundTransactionRowTest
     final OffsetDateTime aNow = APBasicMetaManager.getTimestampMgr ().getCurrentDateTime ();
     final OffsetDateTime aCompleted = aNow.plusMinutes (5);
     final OffsetDateTime aMlsReceived = aNow.plusMinutes (10);
-    final byte [] aDocBytes = { 10, 20 };
 
     final DBResultRow aRow = DBResultRowHelper.createRow ("tx-full",
                                                           "mls_response",
@@ -158,7 +155,7 @@ public final class OutboundTransactionRowTest
                                                           "process-full",
                                                           "sbdh-full",
                                                           "prebuilt_sbd",
-                                                          aDocBytes,
+                                                          "/tmp/test-full.sbd",
                                                           Long.valueOf (2L),
                                                           "hash-full",
                                                           "AT",

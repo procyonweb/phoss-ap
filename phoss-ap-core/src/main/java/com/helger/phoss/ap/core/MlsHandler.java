@@ -23,7 +23,10 @@ import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+
 import com.helger.peppol.mls.EPeppolMLSResponseCode;
+import com.helger.phoss.ap.basic.storage.DocumentStorageHelper;
 import com.helger.peppol.sbdh.EPeppolMLSType;
 import com.helger.phoss.ap.api.IInboundTransactionManager;
 import com.helger.phoss.ap.api.IOutboundTransactionManager;
@@ -69,6 +72,11 @@ public final class MlsHandler
     final byte [] aMlsBytes = {};
     final String sMlsSbdhInstanceID = "mls-" + java.util.UUID.randomUUID ().toString ();
 
+    // Store MLS document to disk
+    final String sDocumentPath = DocumentStorageHelper.storeDocument (new File (APCoreConfig.getStorageOutboundPath ()),
+                                                                      sMlsSbdhInstanceID + ".sbd",
+                                                                      aMlsBytes);
+
     final String sMlsTxID = aOutboundMgr.create (ETransactionType.MLS_RESPONSE,
                                                  aTx.getReceiverID (),
                                                  aTx.getSenderID (),
@@ -76,7 +84,7 @@ public final class MlsHandler
                                                  "mls-process",
                                                  sMlsSbdhInstanceID,
                                                  ESourceType.RAW_XML,
-                                                 aMlsBytes,
+                                                 sDocumentPath,
                                                  aMlsBytes.length,
                                                  "",
                                                  APCoreConfig.getPeppolOwnerCountryCode (),

@@ -56,8 +56,8 @@ public interface IInboundTransactionManager
    *        Peppol Document Type Identifier. Never <code>null</code>.
    * @param sProcessID
    *        Peppol Process Identifier. Never <code>null</code>.
-   * @param aDocumentBytes
-   *        Raw document bytes (complete SBD). Never <code>null</code>.
+   * @param sDocumentPath
+   *        Absolute path to the document file on disk. Never <code>null</code>.
    * @param nDocumentSize
    *        Size of the document in bytes. Must be &ge; 0.
    * @param sDocumentHash
@@ -89,7 +89,7 @@ public interface IInboundTransactionManager
                  @NonNull String sReceiverID,
                  @NonNull String sDocTypeID,
                  @NonNull String sProcessID,
-                 byte @NonNull [] aDocumentBytes,
+                 @NonNull String sDocumentPath,
                  @Nonnegative long nDocumentSize,
                  @NonNull String sDocumentHash,
                  @NonNull String sAS4MessageID,

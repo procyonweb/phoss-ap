@@ -23,7 +23,10 @@ import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+
 import com.helger.phase4.model.message.MessageHelperMethods;
+import com.helger.phoss.ap.basic.storage.DocumentStorageHelper;
 import com.helger.phoss.ap.api.IOutboundSendingAttemptManager;
 import com.helger.phoss.ap.api.IOutboundTransactionManager;
 import com.helger.phoss.ap.api.codelist.EAttemptStatus;
@@ -73,6 +76,12 @@ public final class OutboundOrchestrator
     }
 
     final IOutboundTransactionManager aMgr = APJdbcMetaManager.getOutboundTransactionMgr ();
+
+    // Store document to disk
+    final String sDocumentPath = DocumentStorageHelper.storeDocument (new File (APCoreConfig.getStorageOutboundPath ()),
+                                                                      sSbdhInstanceID + ".sbd",
+                                                                      aDocumentBytes);
+
     // Create in pending state
     final String sTransactionID = aMgr.create (ETransactionType.BUSINESS_DOCUMENT,
                                                sSenderID,
@@ -81,7 +90,7 @@ public final class OutboundOrchestrator
                                                sProcessID,
                                                sSbdhInstanceID,
                                                ESourceType.RAW_XML,
-                                               aDocumentBytes,
+                                               sDocumentPath,
                                                aDocumentBytes.length,
                                                sDocumentHash,
                                                sC1CountryCode,
@@ -105,6 +114,12 @@ public final class OutboundOrchestrator
     final String sDocumentHash = HashHelper.sha256Hex (aSbdBytes);
 
     final IOutboundTransactionManager aMgr = APJdbcMetaManager.getOutboundTransactionMgr ();
+
+    // Store document to disk
+    final String sDocumentPath = DocumentStorageHelper.storeDocument (new File (APCoreConfig.getStorageOutboundPath ()),
+                                                                      sSbdhInstanceID + ".sbd",
+                                                                      aSbdBytes);
+
     // Create in pending state
     final String sTransactionID = aMgr.create (ETransactionType.BUSINESS_DOCUMENT,
                                                sSenderID,
@@ -113,7 +128,7 @@ public final class OutboundOrchestrator
                                                sProcessID,
                                                sSbdhInstanceID,
                                                ESourceType.PREBUILT_SBD,
-                                               aSbdBytes,
+                                               sDocumentPath,
                                                aSbdBytes.length,
                                                sDocumentHash,
                                                sC1CountryCode,

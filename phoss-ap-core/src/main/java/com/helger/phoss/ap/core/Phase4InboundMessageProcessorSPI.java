@@ -16,6 +16,7 @@
  */
 package com.helger.phoss.ap.core;
 
+import java.io.File;
 import java.security.cert.X509Certificate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -28,6 +29,7 @@ import org.unece.cefact.namespaces.sbdh.StandardBusinessDocument;
 
 import com.helger.annotation.style.IsSPIImplementation;
 import com.helger.base.string.StringHelper;
+import com.helger.phoss.ap.basic.storage.DocumentStorageHelper;
 import com.helger.http.header.HttpHeaderMap;
 import com.helger.peppol.reporting.api.CPeppolReporting;
 import com.helger.peppol.sbdh.PeppolSBDHData;
@@ -249,6 +251,11 @@ public class Phase4InboundMessageProcessorSPI implements IPhase4PeppolIncomingSB
       LOGGER.warn ("The incoming AS4 message has not AS4 message timestamp - using the current date time instead");
     }
 
+    // Store document to disk
+    final String sDocumentPath = DocumentStorageHelper.storeDocument (new File (APCoreConfig.getStorageInboundPath ()),
+                                                                      sSbdhInstanceID + ".sbd",
+                                                                      aSBDBytes);
+
     // Store in DB
     final String sTxID = aTxMgr.create (sIncomingID,
                                         sC2ID,
@@ -258,7 +265,7 @@ public class Phase4InboundMessageProcessorSPI implements IPhase4PeppolIncomingSB
                                         sReceiverID,
                                         sDocTypeID,
                                         sProcessID,
-                                        aSBDBytes,
+                                        sDocumentPath,
                                         aSBDBytes.length,
                                         sSbdhHash,
                                         sAS4MessageID,
