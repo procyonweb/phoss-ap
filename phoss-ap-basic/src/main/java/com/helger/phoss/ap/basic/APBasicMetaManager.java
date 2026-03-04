@@ -28,6 +28,8 @@ import com.helger.base.lang.clazz.ClassHelper;
 import com.helger.base.string.StringHelper;
 import com.helger.io.file.FileOperationManager;
 import com.helger.io.file.IFileOperationManager;
+import com.helger.peppolid.factory.IIdentifierFactory;
+import com.helger.peppolid.factory.PeppolIdentifierFactory;
 import com.helger.phoss.ap.api.datetime.IAPTimestampManager;
 import com.helger.scope.IScope;
 import com.helger.scope.singleton.AbstractGlobalSingleton;
@@ -105,5 +107,11 @@ public final class APBasicMetaManager extends AbstractGlobalSingleton
   public static IAPTimestampManager getTimestampMgr ()
   {
     return getInstance ().m_aTimestampMgr;
+  }
+
+  @NonNull
+  public static IIdentifierFactory getIdentifierFactory ()
+  {
+    return PeppolIdentifierFactory.INSTANCE;
   }
 }

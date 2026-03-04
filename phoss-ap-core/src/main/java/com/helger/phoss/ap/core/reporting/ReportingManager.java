@@ -27,11 +27,12 @@ import com.helger.peppol.reporting.api.PeppolReportingItem;
 import com.helger.peppol.reporting.api.backend.PeppolReportingBackend;
 import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IProcessIdentifier;
-import com.helger.peppolid.factory.PeppolIdentifierFactory;
+import com.helger.peppolid.factory.IIdentifierFactory;
 import com.helger.phoss.ap.api.IInboundTransactionManager;
 import com.helger.phoss.ap.api.IOutboundTransactionManager;
 import com.helger.phoss.ap.api.codelist.EReportingStatus;
 import com.helger.phoss.ap.api.config.APConfigProvider;
+import com.helger.phoss.ap.basic.APBasicMetaManager;
 import com.helger.phoss.ap.db.APJdbcMetaManager;
 
 public final class ReportingManager
@@ -55,6 +56,7 @@ public final class ReportingManager
   {
     ValueEnforcer.notNull (sTransactionID, "TransactionID");
 
+    final IIdentifierFactory aIF = APBasicMetaManager.getIdentifierFactory ();
     final IInboundTransactionManager aTxMgr = APJdbcMetaManager.getInboundTransactionMgr ();
 
     // Re-read the transaction to get the latest data
@@ -69,21 +71,25 @@ public final class ReportingManager
 
     try
     {
-      final IDocumentTypeIdentifier aDocTypeID = PeppolIdentifierFactory.INSTANCE.parseDocumentTypeIdentifier (aTx.getDocTypeID ());
+      final IDocumentTypeIdentifier aDocTypeID = aIF.parseDocumentTypeIdentifier (aTx.getDocTypeID ());
       if (aDocTypeID == null)
+      {
         throw new IllegalStateException ("Inbound transaction '" +
                                          sTransactionID +
                                          "' contains the invalid document type ID '" +
                                          aTx.getDocTypeID () +
                                          "'");
+      }
 
-      final IProcessIdentifier aProcessID = PeppolIdentifierFactory.INSTANCE.parseProcessIdentifier (aTx.getProcessID ());
+      final IProcessIdentifier aProcessID = aIF.parseProcessIdentifier (aTx.getProcessID ());
       if (aProcessID == null)
+      {
         throw new IllegalStateException ("Inbound transaction '" +
                                          sTransactionID +
                                          "' contains the invalid process ID '" +
                                          aTx.getProcessID () +
                                          "'");
+      }
 
       final PeppolReportingItem aReportingItem = PeppolReportingItem.builder ()
                                                                     .exchangeDateTime (aTx.getAS4Timestamp ())

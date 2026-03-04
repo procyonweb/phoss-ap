@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.base.io.stream.CountingInputStream;
 import com.helger.base.io.stream.StreamHelper;
+import com.helger.base.state.ESuccess;
 import com.helger.base.string.StringHex;
 import com.helger.base.wrapper.Wrapper;
 import com.helger.io.file.FileOperationManager;
@@ -40,7 +41,7 @@ import com.helger.peppol.sbdh.PeppolSBDHDataReader;
 import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.IProcessIdentifier;
-import com.helger.peppolid.factory.PeppolIdentifierFactory;
+import com.helger.peppolid.factory.IIdentifierFactory;
 import com.helger.phase4.dynamicdiscovery.AS4EndpointDetailProviderPeppol;
 import com.helger.phase4.model.message.MessageHelperMethods;
 import com.helger.phase4.util.Phase4Exception;
@@ -173,6 +174,8 @@ public final class OutboundOrchestrator
   {
     LOGGER.info ("Submitting pre-built SBD");
 
+    final IIdentifierFactory aIF = APBasicMetaManager.getIdentifierFactory ();
+
     final File aStorageBasePath = new File (APBasicConfig.getStorageOutboundPath ());
     final OffsetDateTime aAS4SendingDT = APBasicMetaManager.getTimestampMgr ().getCurrentDateTime ();
     final Wrapper <File> aTempFileHolder = Wrapper.empty ();
@@ -182,7 +185,7 @@ public final class OutboundOrchestrator
     final MessageDigest aMD = HashHelper.MD_ALGO.createMessageDigest ();
     // 1. Count size
     // 2. Create message digest
-    // 3. Copy to a temporary file
+    // 3. Copy SBDH to a temporary file
     // 4. Parse the SBDH
     try (final CountingInputStream aCountingIS = new CountingInputStream (aSbdIS);
          final DigestInputStream aDigestIS = new DigestInputStream (aCountingIS, aMD);
@@ -191,7 +194,7 @@ public final class OutboundOrchestrator
                                                                                          aTempFileHolder::set);
          final CopyingInputStream aCopyIS = new CopyingInputStream (aDigestIS, aFileOS))
     {
-      aData = new PeppolSBDHDataReader (PeppolIdentifierFactory.INSTANCE).extractData (aCopyIS);
+      aData = new PeppolSBDHDataReader (aIF).extractData (aCopyIS);
       nSbdBytes = aCountingIS.getBytesRead ();
     }
     catch (final Exception ex)
@@ -203,7 +206,8 @@ public final class OutboundOrchestrator
       return null;
     }
 
-    final String sDocumentHash = StringHex.getHexEncoded (aMD.digest ());
+    // Get Document hash in the correct version
+    final String sDocumentHash = HashHelper.getDigestHex (aMD);
 
     final String sSbdhInstanceID = aData.getInstanceIdentifier ();
     LOGGER.info ("Found SBDH Instance ID '" + sSbdhInstanceID + "'");
@@ -233,14 +237,17 @@ public final class OutboundOrchestrator
                                                aData.getCountryC1 (),
                                                aAS4SendingDT,
                                                sMlsTo,
-                                               null);
+                                               (String) null);
     return aMgr.getByID (sTransactionID);
   }
 
-  public static void processPendingOutbound (@NonNull final String sLogPrefix, @NonNull final IOutboundTransaction aTx)
+  @NonNull
+  public static ESuccess processPendingOutbound (@NonNull final String sLogPrefix,
+                                                 @NonNull final IOutboundTransaction aTx)
   {
     final String sTxID = aTx.getID ();
     final IAPTimestampManager aTimestampMgr = APBasicMetaManager.getTimestampMgr ();
+    final IIdentifierFactory aIF = APBasicMetaManager.getIdentifierFactory ();
     final IOutboundTransactionManager aTxMgr = APJdbcMetaManager.getOutboundTransactionMgr ();
     final IOutboundSendingAttemptManager aAttemptMgr = APJdbcMetaManager.getOutboundSendingAttemptMgr ();
 
@@ -269,15 +276,15 @@ public final class OutboundOrchestrator
     };
 
     // SMP lookup to find endpoint URL
-    final IParticipantIdentifier aReceiverID = PeppolIdentifierFactory.INSTANCE.parseParticipantIdentifier (aTx.getReceiverID ());
+    final IParticipantIdentifier aReceiverID = aIF.parseParticipantIdentifier (aTx.getReceiverID ());
     if (aReceiverID == null)
       throw new IllegalStateException ("Failed to parse participant identifier '" + aTx.getReceiverID () + "'");
 
-    final IDocumentTypeIdentifier aDocTypeID = PeppolIdentifierFactory.INSTANCE.parseDocumentTypeIdentifier (aTx.getDocTypeID ());
+    final IDocumentTypeIdentifier aDocTypeID = aIF.parseDocumentTypeIdentifier (aTx.getDocTypeID ());
     if (aDocTypeID == null)
       throw new IllegalStateException ("Failed to parse document type identifier '" + aTx.getDocTypeID () + "'");
 
-    final IProcessIdentifier aProcessID = PeppolIdentifierFactory.INSTANCE.parseProcessIdentifier (aTx.getProcessID ());
+    final IProcessIdentifier aProcessID = aIF.parseProcessIdentifier (aTx.getProcessID ());
     if (aProcessID == null)
       throw new IllegalStateException ("Failed to parse process identifier '" + aTx.getProcessID () + "'");
 
@@ -296,7 +303,7 @@ public final class OutboundOrchestrator
                                  aTx.getReceiverID () +
                                  "' is not registered in the Peppol Network. Technical details: " +
                                  ex.getMessage ());
-      return;
+      return ESuccess.FAILURE;
     }
 
     // Perform SMP lookup
@@ -320,13 +327,13 @@ public final class OutboundOrchestrator
           onFailed.accept (ex.getMessage ());
         else
           onPermanentFailure.accept (ex.getMessage ());
-        return;
+        return ESuccess.FAILURE;
       }
     }
     else
     {
       onFailed.accept ("SMP access limited by Circuit Breaker '" + sCircuitBreakerKeySMP + "'");
-      return;
+      return ESuccess.FAILURE;
     }
 
     try
@@ -345,6 +352,8 @@ public final class OutboundOrchestrator
       aTxMgr.updateStatusCompleted (sTxID, EOutboundStatus.SENT);
 
       LOGGER.info (sLogPrefix + "Outbound transaction sent successfully '" + sTxID + "'");
+
+      return ESuccess.SUCCESS;
     }
     catch (final Exception ex)
     {
@@ -353,6 +362,7 @@ public final class OutboundOrchestrator
         onPermanentFailure.accept (ex.getMessage ());
       else
         onFailed.accept (ex.getMessage ());
+      return ESuccess.FAILURE;
     }
   }
 }

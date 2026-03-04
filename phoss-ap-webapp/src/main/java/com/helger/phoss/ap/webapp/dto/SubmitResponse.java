@@ -16,24 +16,33 @@
  */
 package com.helger.phoss.ap.webapp.dto;
 
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+
+import com.helger.annotation.style.UsedViaReflection;
+import com.helger.phoss.ap.api.codelist.EOutboundStatus;
 
 public class SubmitResponse
 {
   private String transactionID;
   private String sbdhInstanceID;
   private String status;
+  private String errorDetails;
 
+  @Deprecated (forRemoval = false)
+  @UsedViaReflection
   public SubmitResponse ()
   {}
 
   public SubmitResponse (@Nullable final String sTransactionID,
                          @Nullable final String sSbdhInstanceID,
-                         @Nullable final String sStatus)
+                         @Nullable final String sStatus,
+                         @Nullable final String sErrorDetails)
   {
     transactionID = sTransactionID;
     sbdhInstanceID = sSbdhInstanceID;
     status = sStatus;
+    errorDetails = sErrorDetails;
   }
 
   public String getTransactionID ()
@@ -64,5 +73,31 @@ public class SubmitResponse
   public void setStatus (final String sStatus)
   {
     status = sStatus;
+  }
+
+  public String getErrorDetails ()
+  {
+    return errorDetails;
+  }
+
+  public void setErrorDetails (final String sErrorDetails)
+  {
+    errorDetails = sErrorDetails;
+  }
+
+  @NonNull
+  public static SubmitResponse success (@Nullable final String sTransactionID,
+                                        @Nullable final String sSbdhInstanceID,
+                                        @NonNull final EOutboundStatus eStatus)
+  {
+    return new SubmitResponse (sTransactionID, sSbdhInstanceID, eStatus.getID (), null);
+  }
+
+  @NonNull
+  public static SubmitResponse rejected (@Nullable final String sTransactionID,
+                                         @Nullable final String sSbdhInstanceID,
+                                         @Nullable final String sErrorDetails)
+  {
+    return new SubmitResponse (sTransactionID, sSbdhInstanceID, EOutboundStatus.REJECTED.getID (), sErrorDetails);
   }
 }

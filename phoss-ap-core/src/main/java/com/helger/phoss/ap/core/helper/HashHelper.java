@@ -16,6 +16,8 @@
  */
 package com.helger.phoss.ap.core.helper;
 
+import java.security.MessageDigest;
+
 import org.jspecify.annotations.NonNull;
 
 import com.helger.annotation.concurrent.Immutable;
@@ -31,9 +33,21 @@ public final class HashHelper
   {}
 
   @NonNull
+  public static String getDigestHex (final byte @NonNull [] aBytes)
+  {
+    return StringHex.getHexEncoded (aBytes);
+  }
+
+  @NonNull
+  public static String getDigestHex (@NonNull final MessageDigest aMD)
+  {
+    return getDigestHex (aMD.digest ());
+  }
+
+  @NonNull
   public static String sha256Hex (final byte @NonNull [] aBytes)
   {
     final byte [] aHash = MD_ALGO.createMessageDigest ().digest (aBytes);
-    return StringHex.getHexEncoded (aHash);
+    return getDigestHex (aHash);
   }
 }
