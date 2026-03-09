@@ -56,16 +56,17 @@ import com.helger.phoss.ap.api.config.APConfigProvider;
 import com.helger.phoss.ap.api.model.IOutboundTransaction;
 import com.helger.phoss.ap.basic.APBasicMetaManager;
 import com.helger.phoss.ap.core.APCoreConfig;
+import com.helger.phoss.ap.core.APCoreMetaManager;
 import com.helger.phoss.ap.core.outbound.OutboundOrchestrator;
 
 /**
- * Helper class for report generation
+ * Helper class for Peppol Reporting report generation
  *
  * @author Philip Helger
  */
-public final class APReportingHelper
+public final class APPeppolReportHelper
 {
-  private static final Logger LOGGER = Phase4LoggerFactory.getLogger (APReportingHelper.class);
+  private static final Logger LOGGER = Phase4LoggerFactory.getLogger (APPeppolReportHelper.class);
 
   @NonNull
   public static YearMonth getValidYearMonthInAPI (final int nYear, final int nMonth)
@@ -129,7 +130,8 @@ public final class APReportingHelper
   }
 
   /**
-   * Create, validate, store, send and store sending reports for Peppol TSR and EUSR for one period.
+   * Create, validate, store, send and store sending reports for Peppol TSR and
+   * EUSR for one period.
    *
    * @param aYearMonth
    *        The reporting period to use. May not be <code>null</code>.
@@ -142,8 +144,6 @@ public final class APReportingHelper
 
     final StopWatch aSW = StopWatch.createdStarted ();
     LOGGER.info ("Trying to create and send Peppol Reports for " + aYearMonth);
-
-    int nSuccessCount = 0;
 
     // How to do AS4 sending
     final IPeppolReportSenderCallback aPeppolSender = (aDocTypeID, aProcessID, sMessagePayload) -> {
@@ -187,6 +187,8 @@ public final class APReportingHelper
       return aSendingReport.getAsJsonString ();
     };
 
+    boolean bTSRSuccess = false;
+    boolean bEUSRSuccess = false;
     try (final PeppolReportSQLHandler aHdl = new PeppolReportSQLHandler (APConfigProvider.getConfig ()))
     {
       final PeppolReportStorageSQL aReportingStorage = new PeppolReportStorageSQL (aHdl, aHdl.getTableNamePrefix ());
@@ -208,7 +210,7 @@ public final class APReportingHelper
                     .isSuccess ())
             {
               LOGGER.info ("Successfully sent TSR for " + aYearMonth + " to OpenPeppol");
-              nSuccessCount++;
+              bTSRSuccess = true;
             }
             else
               LOGGER.error ("Failed to send TSR for " + aYearMonth + " to OpenPeppol");
@@ -223,6 +225,10 @@ public final class APReportingHelper
       {
         LOGGER.error ("Failed to create TSR for " + aYearMonth, ex);
       }
+
+      if (!bTSRSuccess)
+        for (final var aHandler : APCoreMetaManager.getAllNotificationHandlers ())
+          aHandler.onPeppolReportingTSRFailure (aYearMonth);
 
       // Handle EUSR
       try
@@ -240,7 +246,7 @@ public final class APReportingHelper
                     .isSuccess ())
             {
               LOGGER.info ("Successfully sent EUSR for " + aYearMonth + " to OpenPeppol");
-              nSuccessCount++;
+              bEUSRSuccess = true;
             }
             else
               LOGGER.error ("Failed to send EUSR for " + aYearMonth + " to OpenPeppol");
@@ -255,11 +261,15 @@ public final class APReportingHelper
       {
         LOGGER.error ("Failed to create EUSR for " + aYearMonth, ex);
       }
+
+      if (!bEUSRSuccess)
+        for (final var aHandler : APCoreMetaManager.getAllNotificationHandlers ())
+          aHandler.onPeppolReportingEUSRFailure (aYearMonth);
     }
 
     aSW.stop ();
     LOGGER.info ("Finished processing Peppol Reports after " + aSW.getDuration ());
 
-    return ESuccess.valueOf (nSuccessCount == 2);
+    return ESuccess.valueOf (bTSRSuccess && bEUSRSuccess);
   }
 }

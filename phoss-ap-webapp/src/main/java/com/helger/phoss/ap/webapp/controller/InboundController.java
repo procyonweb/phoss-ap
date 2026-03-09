@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.phoss.ap.webapp;
+package com.helger.phoss.ap.webapp.controller;
 
 import java.util.List;
 
@@ -32,7 +32,7 @@ import com.helger.base.string.StringHelper;
 import com.helger.collection.commons.ICommonsList;
 import com.helger.phoss.ap.api.IInboundTransactionManager;
 import com.helger.phoss.ap.api.model.IInboundTransaction;
-import com.helger.phoss.ap.core.reporting.ReportingManager;
+import com.helger.phoss.ap.core.reporting.APPeppolReportingHelper;
 import com.helger.phoss.ap.db.APJdbcMetaManager;
 import com.helger.phoss.ap.webapp.dto.InboundTransactionResponse;
 import com.helger.phoss.ap.webapp.dto.ReportResponse;
@@ -68,7 +68,7 @@ public class InboundController
 
     // Store the country code for C4 and create the reporting entry
     aTxMgr.updateC4CountryCode (aTx.getID (), sC4CountryCode);
-    ReportingManager.createInboundPeppolReportingItem (aTx.getID ());
+    APPeppolReportingHelper.createInboundPeppolReportingItem (aTx.getID ());
 
     return ResponseEntity.ok (new ReportResponse (aTx.getID (),
                                                   "updated",

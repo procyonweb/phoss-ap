@@ -16,6 +16,8 @@
  */
 package com.helger.phoss.ap.api.spi;
 
+import java.time.YearMonth;
+
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -26,8 +28,8 @@ import com.helger.base.tostring.ToStringGenerator;
 import com.helger.peppol.mls.EPeppolMLSResponseCode;
 
 /**
- * This is a wrapper class around another {@link INotificationHandlerSPI} implementation that wraps
- * all exceptions and logs them accordingly. <br>
+ * This is a wrapper class around another {@link INotificationHandlerSPI}
+ * implementation that wraps all exceptions and logs them accordingly. <br>
  * Note: this class is manually instantiated to wrap SPI loaded instances.
  *
  * @author Philip Helger
@@ -125,6 +127,30 @@ public final class SafeNotificationHandler implements INotificationHandlerSPI
     catch (final Exception ex)
     {
       LOGGER.error ("Internal error invoking onInboundForwardingError on " + m_aHdl, ex);
+    }
+  }
+
+  public void onPeppolReportingTSRFailure (@NonNull final YearMonth aYearMonth)
+  {
+    try
+    {
+      m_aHdl.onPeppolReportingTSRFailure (aYearMonth);
+    }
+    catch (final Exception ex)
+    {
+      LOGGER.error ("Internal error invoking onPeppolReportingTSRFailure on " + m_aHdl, ex);
+    }
+  }
+
+  public void onPeppolReportingEUSRFailure (@NonNull final YearMonth aYearMonth)
+  {
+    try
+    {
+      m_aHdl.onPeppolReportingEUSRFailure (aYearMonth);
+    }
+    catch (final Exception ex)
+    {
+      LOGGER.error ("Internal error invoking onPeppolReportingEUSRFailure on " + m_aHdl, ex);
     }
   }
 

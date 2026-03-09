@@ -40,11 +40,11 @@ import com.helger.phoss.ap.db.APJdbcMetaManager;
  *
  * @author Philip Helger
  */
-public final class ReportingManager
+public final class APPeppolReportingHelper
 {
-  private static final Logger LOGGER = LoggerFactory.getLogger (ReportingManager.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (APPeppolReportingHelper.class);
 
-  private ReportingManager ()
+  private APPeppolReportingHelper ()
   {}
 
   @NonNull

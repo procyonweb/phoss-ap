@@ -29,7 +29,7 @@ import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import com.helger.base.string.StringHelper;
 import com.helger.phase4.logging.Phase4LoggerFactory;
 import com.helger.phoss.ap.core.APCoreConfig;
-import com.helger.phoss.ap.core.reporting.APReportingHelper;
+import com.helger.phoss.ap.core.reporting.APPeppolReportHelper;
 
 @Configuration
 @EnableScheduling
@@ -72,7 +72,7 @@ public class SchedulerConfig implements SchedulingConfigurer
         LOGGER.info ("Running scheduled creation and sending of Peppol Reporting messages");
         // Use the previous month
         final YearMonth aYearMonth = YearMonth.now ().minusMonths (1);
-        APReportingHelper.createAndSendPeppolReports (aYearMonth);
+        APPeppolReportHelper.createAndSendPeppolReports (aYearMonth);
       }, sCronKey));
     }
     else

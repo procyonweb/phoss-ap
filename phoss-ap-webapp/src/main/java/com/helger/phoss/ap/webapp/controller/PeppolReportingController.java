@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.phoss.ap.webapp;
+package com.helger.phoss.ap.webapp.controller;
 
 import java.time.YearMonth;
 
@@ -40,7 +40,7 @@ import com.helger.peppol.reporting.tsr.TransactionStatisticsReport;
 import com.helger.phase4.logging.Phase4LoggerFactory;
 import com.helger.phoss.ap.api.config.APConfigProvider;
 import com.helger.phoss.ap.core.APCoreConfig;
-import com.helger.phoss.ap.core.reporting.APReportingHelper;
+import com.helger.phoss.ap.core.reporting.APPeppolReportHelper;
 
 /**
  * This is the primary REST controller for the APIs to create Peppol Reports TSR and EUSR.<br>
@@ -70,7 +70,7 @@ public class PeppolReportingController
                                                                           required = true) final int nMonth)
   {
     // Check parameters
-    final YearMonth aYearMonth = APReportingHelper.getValidYearMonthInAPI (nYear, nMonth);
+    final YearMonth aYearMonth = APPeppolReportHelper.getValidYearMonthInAPI (nYear, nMonth);
 
     LOGGER.info ("Trying to create Peppol Reporting TSR for " + aYearMonth);
 
@@ -118,7 +118,7 @@ public class PeppolReportingController
                                                                            required = true) final int nMonth)
   {
     // Check parameters
-    final YearMonth aYearMonth = APReportingHelper.getValidYearMonthInAPI (nYear, nMonth);
+    final YearMonth aYearMonth = APPeppolReportHelper.getValidYearMonthInAPI (nYear, nMonth);
 
     LOGGER.info ("Trying to create Peppol Reporting EUSR for " + aYearMonth);
 
@@ -167,8 +167,8 @@ public class PeppolReportingController
                                                                             required = true) final int nMonth)
   {
     // Check parameters
-    final YearMonth aYearMonth = APReportingHelper.getValidYearMonthInAPI (nYear, nMonth);
-    if (APReportingHelper.createAndSendPeppolReports (aYearMonth).isSuccess ())
+    final YearMonth aYearMonth = APPeppolReportHelper.getValidYearMonthInAPI (nYear, nMonth);
+    if (APPeppolReportHelper.createAndSendPeppolReports (aYearMonth).isSuccess ())
       ResponseEntity.ok ("Done - check report storage");
     return ResponseEntity.internalServerError ().body ("Error creating or sending Peppol Reports");
   }

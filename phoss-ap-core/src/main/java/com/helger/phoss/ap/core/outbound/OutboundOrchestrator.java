@@ -78,7 +78,7 @@ import com.helger.phoss.ap.core.CircuitBreakerManager;
 import com.helger.phoss.ap.core.helper.BackoffCalculator;
 import com.helger.phoss.ap.core.helper.CopyingInputStream;
 import com.helger.phoss.ap.core.helper.HashHelper;
-import com.helger.phoss.ap.core.reporting.ReportingManager;
+import com.helger.phoss.ap.core.reporting.APPeppolReportingHelper;
 import com.helger.phoss.ap.db.APJdbcMetaManager;
 import com.helger.security.certificate.TrustedCAChecker;
 import com.helger.smpclient.peppol.CachingSMPClientReadOnly;
@@ -100,16 +100,18 @@ public final class OutboundOrchestrator
   {}
 
   /**
-   * Submit a raw (payload-only) document for outbound sending. The document is stored to disk,
-   * optionally verified, and a new outbound transaction is created in
-   * {@link EOutboundStatus#PENDING} state.
+   * Submit a raw (payload-only) document for outbound sending. The document is
+   * stored to disk, optionally verified, and a new outbound transaction is
+   * created in {@link EOutboundStatus#PENDING} state.
    *
    * @param sLogPrefix
    *        Log message prefix for traceability. May not be <code>null</code>.
    * @param aSenderID
-   *        The Peppol sender participant identifier. May not be <code>null</code>.
+   *        The Peppol sender participant identifier. May not be
+   *        <code>null</code>.
    * @param aReceiverID
-   *        The Peppol receiver participant identifier. May not be <code>null</code>.
+   *        The Peppol receiver participant identifier. May not be
+   *        <code>null</code>.
    * @param aDocTypeID
    *        The Peppol document type identifier. May not be <code>null</code>.
    * @param aProcessID
@@ -119,8 +121,8 @@ public final class OutboundOrchestrator
    * @param sC1CountryCode
    *        The C1 country code of the sender. May not be <code>null</code>.
    * @param aDocumentIS
-   *        The input stream of the raw document payload. Will not be closed by this method. May not
-   *        be <code>null</code>.
+   *        The input stream of the raw document payload. Will not be closed by
+   *        this method. May not be <code>null</code>.
    * @param sMlsTo
    *        Optional MLS "To" address. May be <code>null</code>.
    * @param sSbdhStandard
@@ -130,10 +132,10 @@ public final class OutboundOrchestrator
    * @param sSbdhType
    *        Optional SBDH type. May be <code>null</code>.
    * @param sPayloadMimeType
-   *        Optional payload MIME type (e.g. "application/pdf"). May be <code>null</code> for XML
-   *        payloads.
-   * @return The created {@link IOutboundTransaction} or <code>null</code> if the document could not
-   *         be stored or verification failed.
+   *        Optional payload MIME type (e.g. "application/pdf"). May be
+   *        <code>null</code> for XML payloads.
+   * @return The created {@link IOutboundTransaction} or <code>null</code> if
+   *         the document could not be stored or verification failed.
    */
   @Nullable
   public static IOutboundTransaction submitRawDocument (@NonNull final String sLogPrefix,
@@ -240,18 +242,19 @@ public final class OutboundOrchestrator
   }
 
   /**
-   * Submit a pre-built Standard Business Document (SBD) for outbound sending. The SBD is parsed to
-   * extract Peppol metadata, stored to disk, and a new outbound transaction is created in
-   * {@link EOutboundStatus#PENDING} state.
+   * Submit a pre-built Standard Business Document (SBD) for outbound sending.
+   * The SBD is parsed to extract Peppol metadata, stored to disk, and a new
+   * outbound transaction is created in {@link EOutboundStatus#PENDING} state.
    *
    * @param sLogPrefix
    *        Log message prefix for traceability. May not be <code>null</code>.
    * @param aSbdIS
-   *        The input stream containing the complete pre-built SBD. May not be <code>null</code>.
+   *        The input stream containing the complete pre-built SBD. May not be
+   *        <code>null</code>.
    * @param sMlsTo
    *        Optional MLS "To" address. May be <code>null</code>.
-   * @return The created {@link IOutboundTransaction} or <code>null</code> if the SBD could not be
-   *         parsed.
+   * @return The created {@link IOutboundTransaction} or <code>null</code> if
+   *         the SBD could not be parsed.
    */
   @Nullable
   public static IOutboundTransaction submitPrebuiltSBD (@NonNull final String sLogPrefix,
@@ -272,7 +275,8 @@ public final class OutboundOrchestrator
     final MessageDigest aMD = HashHelper.createMessageDigest ();
     // 1. Count size
     // 2. Create message digest
-    // 3. Copy SBDH to a temporary file - the final name can only be deduced after reading the SBDH
+    // 3. Copy SBDH to a temporary file - the final name can only be deduced
+    // after reading the SBDH
     // as it contains the InstanceIdentifier
     // 4. Parse the SBDH
     try (final CountingInputStream aCountingIS = new CountingInputStream (aSbdIS);
@@ -336,21 +340,23 @@ public final class OutboundOrchestrator
   }
 
   /**
-   * Process a pending outbound transaction by performing SMP lookup and sending the document via
-   * AS4/Peppol. This method handles dynamic discovery (NAPTR + SMP), certificate validation,
-   * circuit breaker checks, and the actual AS4 transmission. On success, the transaction status is
-   * updated to {@link EOutboundStatus#SENT}. On failure, the transaction is either marked as
-   * {@link EOutboundStatus#FAILED} (with retry scheduling) or
-   * {@link EOutboundStatus#PERMANENTLY_FAILED} depending on the error type and attempt count.
+   * Process a pending outbound transaction by performing SMP lookup and sending
+   * the document via AS4/Peppol. This method handles dynamic discovery (NAPTR +
+   * SMP), certificate validation, circuit breaker checks, and the actual AS4
+   * transmission. On success, the transaction status is updated to
+   * {@link EOutboundStatus#SENT}. On failure, the transaction is either marked
+   * as {@link EOutboundStatus#FAILED} (with retry scheduling) or
+   * {@link EOutboundStatus#PERMANENTLY_FAILED} depending on the error type and
+   * attempt count.
    *
    * @param sLogPrefix
    *        Log message prefix for traceability. May not be <code>null</code>.
    * @param aTx
-   *        The outbound transaction to process. Must be in pending state. May not be
-   *        <code>null</code>.
-   * @return The {@link Phase4PeppolSendingReport} containing the full details of the sending
-   *         attempt including lookup results, AS4 message IDs, and timing information. Never
-   *         <code>null</code>.
+   *        The outbound transaction to process. Must be in pending state. May
+   *        not be <code>null</code>.
+   * @return The {@link Phase4PeppolSendingReport} containing the full details
+   *         of the sending attempt including lookup results, AS4 message IDs,
+   *         and timing information. Never <code>null</code>.
    */
   @NonNull
   public static Phase4PeppolSendingReport processPendingOutbound (@NonNull final String sLogPrefix,
@@ -400,7 +406,8 @@ public final class OutboundOrchestrator
           aHandler.onPermanentSendingFailure (sTxID, aTx.getSbdhInstanceID (), sErrMsg);
       };
 
-      // Convert all identifiers to structured data - that should have been verified before
+      // Convert all identifiers to structured data - that should have been
+      // verified before
       final IParticipantIdentifier aSenderID = aIF.parseParticipantIdentifier (aTx.getSenderID ());
       if (aSenderID == null)
         throw new IllegalStateException ("Failed to parse sender participant identifier '" + aTx.getSenderID () + "'");
@@ -513,7 +520,8 @@ public final class OutboundOrchestrator
       final String sCircuitBreakerKeyAP = "ap$" + sReceiverAPURL;
       if (CircuitBreakerManager.tryAcquirePermit (sCircuitBreakerKeyAP))
       {
-        // Only add it here to the sending report, otherwise the interpretation of the report gets
+        // Only add it here to the sending report, otherwise the interpretation
+        // of the report gets
         // more difficult
         aSendingReport.setSBDHInstanceIdentifier (aTx.getSbdhInstanceID ());
         aSendingReport.setCountryC1 (aTx.getC1CountryCode ());
@@ -592,7 +600,8 @@ public final class OutboundOrchestrator
               }
               else
               {
-                // Add support for other non-XML document types here (e.g. from SP2SP) if needed
+                // Add support for other non-XML document types here (e.g. from
+                // SP2SP) if needed
 
                 // Default is XML
                 if (StringHelper.isNotEmpty (sPayloadMimeType))
@@ -727,8 +736,8 @@ public final class OutboundOrchestrator
             final boolean bReportingItemStored;
             if (aReportingItem != null)
             {
-              bReportingItemStored = ReportingManager.createOutboundPeppolReportingItem (sTxID, aReportingItem)
-                                                     .isSuccess ();
+              bReportingItemStored = APPeppolReportingHelper.createOutboundPeppolReportingItem (sTxID, aReportingItem)
+                                                              .isSuccess ();
               if (bReportingItemStored)
                 LOGGER.info (sRealLogPrefix + "Successfully stored for Peppol Reporting");
               else

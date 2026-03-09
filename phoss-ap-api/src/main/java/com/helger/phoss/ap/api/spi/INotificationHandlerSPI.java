@@ -16,6 +16,8 @@
  */
 package com.helger.phoss.ap.api.spi;
 
+import java.time.YearMonth;
+
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -23,9 +25,10 @@ import com.helger.annotation.style.IsSPIInterface;
 import com.helger.peppol.mls.EPeppolMLSResponseCode;
 
 /**
- * SPI interface for receiving notifications about permanent processing failures. Implementations
- * are loaded via {@link java.util.ServiceLoader}. Multiple handlers may be registered. Concrete
- * implementations are deployment-specific (e.g., email, Slack, monitoring system webhook).
+ * SPI interface for receiving notifications about permanent processing
+ * failures. Implementations are loaded via {@link java.util.ServiceLoader}.
+ * Multiple handlers may be registered. Concrete implementations are
+ * deployment-specific (e.g., email, Slack, monitoring system webhook).
  *
  * @author Philip Helger
  */
@@ -33,7 +36,8 @@ import com.helger.peppol.mls.EPeppolMLSResponseCode;
 public interface INotificationHandlerSPI
 {
   /**
-   * Called when an outbound or inbound document fails optional verification and is rejected.
+   * Called when an outbound or inbound document fails optional verification and
+   * is rejected.
    *
    * @param sTransactionID
    *        The transaction ID. Never <code>null</code>.
@@ -47,7 +51,8 @@ public interface INotificationHandlerSPI
                                        @Nullable String sErrorDetails);
 
   /**
-   * Called when an outbound transaction permanently fails after exhausting all sending retries.
+   * Called when an outbound transaction permanently fails after exhausting all
+   * sending retries.
    *
    * @param sTransactionID
    *        The transaction ID. Never <code>null</code>.
@@ -81,7 +86,8 @@ public interface INotificationHandlerSPI
                                      @NonNull String sSbdhInstanceID);
 
   /**
-   * Called when an inbound transaction permanently fails after exhausting all forwarding retries.
+   * Called when an inbound transaction permanently fails after exhausting all
+   * forwarding retries.
    *
    * @param sTransactionID
    *        The transaction ID. Never <code>null</code>.
@@ -95,28 +101,50 @@ public interface INotificationHandlerSPI
                                      @Nullable String sErrorDetails);
 
   /**
-   * Called when the inbound message is an MLS but could not be correlated with an outbound
-   * transaction.
+   * Called when the inbound message is an MLS but could not be correlated with
+   * an outbound transaction.
    *
    * @param sTxID
    *        The incoming transaction ID. May not be <code>null</code>.
    * @param sReferencedSbdhInstanceID
    *        The referenced SBDH ID from the MLS. May not be <code>null</code>.
    * @param eMlsResponseCode
-   *        The response code contained in the MLS. May not be <code>null</code>.
+   *        The response code contained in the MLS. May not be
+   *        <code>null</code>.
    */
   void onInboundMLSCorrelationError (@NonNull String sTxID,
                                      @NonNull String sReferencedSbdhInstanceID,
                                      @NonNull EPeppolMLSResponseCode eMlsResponseCode);
 
   /**
-   * Called if an inbound messages could not be forwarded properly. The database state has already
-   * been updated when this is called.
+   * Called if an inbound messages could not be forwarded properly. The database
+   * state has already been updated when this is called.
    *
    * @param sTxID
    *        The inbound transaction ID. May not be <code>null</code>.
    * @param bIsRetry
-   *        <code>true</code> if it is a retry, <code>false</code> if it is the original request.
+   *        <code>true</code> if it is a retry, <code>false</code> if it is the
+   *        original request.
    */
   void onInboundForwardingError (@NonNull String sTxID, boolean bIsRetry);
+
+  /**
+   * Called when creating, validating or sending a Peppol Reporting TSR report
+   * failed.
+   *
+   * @param aYearMonth
+   *        The year and month for which the reporting should be performed never
+   *        <code>null</code>.
+   */
+  void onPeppolReportingTSRFailure (@NonNull YearMonth aYearMonth);
+
+  /**
+   * Called when creating, validating or sending a Peppol Reporting EUSR report
+   * failed.
+   *
+   * @param aYearMonth
+   *        The year and month for which the reporting should be performed never
+   *        <code>null</code>.
+   */
+  void onPeppolReportingEUSRFailure (@NonNull YearMonth aYearMonth);
 }

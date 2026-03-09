@@ -32,7 +32,7 @@ import com.helger.phoss.ap.core.APCoreConfig;
 import com.helger.phoss.ap.core.APCoreMetaManager;
 import com.helger.phoss.ap.core.CircuitBreakerManager;
 import com.helger.phoss.ap.core.helper.BackoffCalculator;
-import com.helger.phoss.ap.core.reporting.ReportingManager;
+import com.helger.phoss.ap.core.reporting.APPeppolReportingHelper;
 import com.helger.phoss.ap.db.APJdbcMetaManager;
 
 /**
@@ -98,7 +98,7 @@ public final class InboundOrchestrator
         {
           // We can store the reporting item immediately
           aTxMgr.updateC4CountryCode (aTx.getID (), aResult.getCountryCodeC4 ());
-          if (ReportingManager.createInboundPeppolReportingItem (aTx.getID ()).isFailure ())
+          if (APPeppolReportingHelper.createInboundPeppolReportingItem (aTx.getID ()).isFailure ())
             LOGGER.error (sLogPrefix +
                           "Forwarding successful, but failed to store Peppol Reporting entry for '" +
                           aTx.getID () +
@@ -116,7 +116,8 @@ public final class InboundOrchestrator
       final int nMaxRetryAttempts = APCoreConfig.getRetryForwardingMaxAttempts ();
       if (nNewAttemptCount >= nMaxRetryAttempts)
       {
-        // Maximum number of retries are exhausted - we go on "permanently failed"
+        // Maximum number of retries are exhausted - we go on "permanently
+        // failed"
         aTxMgr.updateStatusAndRetry (aTx.getID (),
                                      EInboundStatus.PERMANENTLY_FAILED,
                                      nNewAttemptCount,
