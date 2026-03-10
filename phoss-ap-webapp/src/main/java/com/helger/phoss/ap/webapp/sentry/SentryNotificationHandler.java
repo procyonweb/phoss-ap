@@ -1,0 +1,145 @@
+/*
+ * Copyright (C) 2026 Philip Helger (www.helger.com)
+ * philip[at]helger[dot]com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.helger.phoss.ap.webapp.sentry;
+
+import java.time.YearMonth;
+import java.util.Map;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
+import com.helger.peppol.mls.EPeppolMLSResponseCode;
+import com.helger.phoss.ap.api.spi.INotificationHandlerSPI;
+
+import io.sentry.Sentry;
+import io.sentry.SentryAttribute;
+import io.sentry.SentryAttributes;
+import io.sentry.SentryLogLevel;
+import io.sentry.logger.SentryLogParameters;
+
+/**
+ * Special implementation of {@link INotificationHandlerSPI} for Sentry log events.
+ *
+ * @author Philip Helger
+ */
+public class SentryNotificationHandler implements INotificationHandlerSPI
+{
+  private static void _logError (final String sMsg, final Map <String, String> aParams)
+  {
+    final SentryAttribute [] aSentryAttrs = aParams.entrySet ()
+                                                   .stream ()
+                                                   .map (e -> SentryAttribute.stringAttribute (e.getKey (),
+                                                                                               e.getValue ()))
+                                                   .toArray (SentryAttribute []::new);
+    Sentry.logger ().log (SentryLogLevel.ERROR, SentryLogParameters.create (SentryAttributes.of (aSentryAttrs)), sMsg);
+  }
+
+  public void onInboundVerificationRejection (@NonNull final String sTransactionID,
+                                              @NonNull final String sSbdhInstanceID,
+                                              @Nullable final String sErrorDetails)
+  {
+    _logError ("onInboundVerificationRejection",
+               Map.of ("transactionID",
+                       sTransactionID,
+                       "sbdhInstanceID",
+                       sSbdhInstanceID,
+                       "errorDetails",
+                       sErrorDetails));
+  }
+
+  public void onOutboundPermanentSendingFailure (@NonNull final String sTransactionID,
+                                         @NonNull final String sSbdhInstanceID,
+                                         @Nullable final String sErrorDetails)
+  {
+    _logError ("onPermanentSendingFailure",
+               Map.of ("transactionID",
+                       sTransactionID,
+                       "sbdhInstanceID",
+                       sSbdhInstanceID,
+                       "errorDetails",
+                       sErrorDetails));
+  }
+
+  public void onInboundReceiverNotServiced (@NonNull final String sSenderID,
+                                            @NonNull final String sReceiverID,
+                                            @NonNull final String sDocTypeID,
+                                            @NonNull final String sProcessID,
+                                            @NonNull final String sSbdhInstanceID)
+  {
+    _logError ("onInboundReceiverNotServiced",
+               Map.of ("senderID",
+                       sSenderID,
+                       "receiverID",
+                       sReceiverID,
+                       "docTypeID",
+                       sDocTypeID,
+                       "processID",
+                       sProcessID,
+                       "sbdhInstanceID",
+                       sSbdhInstanceID));
+  }
+
+  public void onInboundPermanentForwardingFailure (@NonNull final String sTransactionID,
+                                            @NonNull final String sSbdhInstanceID,
+                                            @Nullable final String sErrorDetails)
+  {
+    _logError ("onPermanentForwardingFailure",
+               Map.of ("transactionID",
+                       sTransactionID,
+                       "sbdhInstanceID",
+                       sSbdhInstanceID,
+                       "errorDetails",
+                       sErrorDetails));
+  }
+
+  public void onInboundMLSCorrelationError (@NonNull final String sTransactionID,
+                                            @NonNull final String sReferencedSbdhInstanceID,
+                                            @NonNull final EPeppolMLSResponseCode eMlsResponseCode)
+  {
+    _logError ("onInboundMLSCorrelationError",
+               Map.of ("transactionID",
+                       sTransactionID,
+                       "referencedSbdhInstanceID",
+                       sReferencedSbdhInstanceID,
+                       "mlsResponseCode",
+                       eMlsResponseCode.getID ()));
+  }
+
+  public void onInboundForwardingError (@NonNull final String sTransactionID, final boolean bIsRetry)
+  {
+    _logError ("onInboundForwardingError",
+               Map.of ("transactionID", sTransactionID, "isRetry", Boolean.toString (bIsRetry)));
+  }
+
+  public void onPeppolReportingTSRFailure (@NonNull final YearMonth aYearMonth)
+  {
+    _logError ("onPeppolReportingTSRFailure",
+               Map.of ("year",
+                       Integer.toString (aYearMonth.getYear ()),
+                       "month",
+                       Integer.toString (aYearMonth.getMonthValue ())));
+  }
+
+  public void onPeppolReportingEUSRFailure (@NonNull final YearMonth aYearMonth)
+  {
+    _logError ("onPeppolReportingEUSRFailure",
+               Map.of ("year",
+                       Integer.toString (aYearMonth.getYear ()),
+                       "month",
+                       Integer.toString (aYearMonth.getMonthValue ())));
+  }
+}

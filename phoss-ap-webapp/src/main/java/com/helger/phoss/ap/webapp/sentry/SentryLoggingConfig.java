@@ -26,6 +26,8 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.helger.phoss.ap.core.notification.NotificationHandlerManager;
+
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import io.sentry.SentryOptions;
@@ -73,6 +75,9 @@ public class SentryLoggingConfig
       aLogCtx.getLogger (Logger.ROOT_LOGGER_NAME).addAppender (aAppender);
 
       LOGGER.info ("Successfully installed the Sentry Log Appender");
+
+      // Manually register the Sentry NotificationHandler implementation
+      NotificationHandlerManager.registerHandler (new SentryNotificationHandler ());
     }
   }
 
