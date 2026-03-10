@@ -50,6 +50,7 @@ import com.helger.phoss.ap.api.CPhossAP;
 import com.helger.phoss.ap.api.IInboundTransactionManager;
 import com.helger.phoss.ap.api.codelist.EDuplicateDetectionMode;
 import com.helger.phoss.ap.api.codelist.EInboundStatus;
+import com.helger.phoss.ap.api.datetime.IAPTimestampManager;
 import com.helger.phoss.ap.api.spi.IInboundDocumentVerifierSPI;
 import com.helger.phoss.ap.api.spi.IPeppolReceiverCheckSPI;
 import com.helger.phoss.ap.basic.APBasicConfig;
@@ -82,6 +83,7 @@ public class Phase4InboundMessageProcessorSPI implements IPhase4PeppolIncomingSB
     Phase4LogCustomizer.setThreadLocalLogPrefix (sLogPrefix);
     try
     {
+      final IAPTimestampManager aTimestampMgr = APBasicMetaManager.getTimestampMgr ();
       final IInboundTransactionManager aTxMgr = APJdbcMetaManager.getInboundTransactionMgr ();
       final Locale aDisplayLocale = CPhossAP.DEFAULT_LOCALE;
 
@@ -170,7 +172,10 @@ public class Phase4InboundMessageProcessorSPI implements IPhase4PeppolIncomingSB
       {
         // Was an offset provided?
         if (aIncomingState.getMessageTimestamp ().getOffset () != null)
+        {
+          // Use provided timezone offset
           aAS4Timestamp = aIncomingState.getMessageTimestamp ().toOffsetDateTime ();
+        }
         else
         {
           // Default to UTC as per AS4 specification
@@ -179,7 +184,8 @@ public class Phase4InboundMessageProcessorSPI implements IPhase4PeppolIncomingSB
       }
       else
       {
-        aAS4Timestamp = APBasicMetaManager.getTimestampMgr ().getCurrentDateTime ();
+        // Get current time stamp in UTC
+        aAS4Timestamp = aTimestampMgr.getCurrentDateTimeUTC ();
         LOGGER.warn (sLogPrefix +
                      "The incoming AS4 message has not AS4 message timestamp - using the current date time instead");
       }
