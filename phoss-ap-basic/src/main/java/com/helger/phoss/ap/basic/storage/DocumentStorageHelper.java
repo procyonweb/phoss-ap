@@ -261,4 +261,25 @@ public final class DocumentStorageHelper
       throw new IllegalStateException ("Failed to delete document at '" + sAbsolutePath + "'", ex);
     }
   }
+
+  /**
+   * Check if the document file at the given path exists or not.
+   *
+   * @param sAbsolutePath
+   *        The absolute path of the file. May not be <code>null</code>.
+   * @return <code>true</code> if the file exists, <code>false</code> if it does not exist.
+   */
+  public static boolean existsDocument (@NonNull final String sAbsolutePath)
+  {
+    ValueEnforcer.notNull (sAbsolutePath, "AbsolutePath");
+
+    try
+    {
+      return Files.exists (Path.of (sAbsolutePath));
+    }
+    catch (final Exception ex)
+    {
+      throw new IllegalStateException ("Failed to check existence of document at '" + sAbsolutePath + "'", ex);
+    }
+  }
 }
