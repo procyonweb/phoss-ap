@@ -84,6 +84,10 @@
       <artifactId>phoss-ap-sentry</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.helger.phoss.ap</groupId>
+      <artifactId>phoss-ap-validation</artifactId>
+    </dependency>
+    <dependency>
       <groupId>io.sentry</groupId>
       <artifactId>sentry-logback</artifactId>
       <version>${sentry.version}</version>

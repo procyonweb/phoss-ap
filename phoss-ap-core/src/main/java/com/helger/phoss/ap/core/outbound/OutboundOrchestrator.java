@@ -207,7 +207,7 @@ public final class OutboundOrchestrator
     if (APCoreConfig.isVerificationOutboundEnabled ())
     {
       for (final IOutboundDocumentVerifierSPI aVerifier : APCoreMetaManager.getAllOutboundVerifiers ())
-        if (aVerifier.verifyDocument (sDocumentPath, aDocTypeID, aProcessID).isFailure ())
+        if (aVerifier.verifyOutboundDocument (sDocumentPath, aDocTypeID, aProcessID).isFailure ())
         {
           LOGGER.warn (sLogPrefix + "Outbound document verification failed for SBDH '" + sSbdhInstanceID + "'");
           return null;

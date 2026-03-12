@@ -51,6 +51,8 @@ import com.helger.phoss.ap.api.IInboundTransactionManager;
 import com.helger.phoss.ap.api.codelist.EDuplicateDetectionMode;
 import com.helger.phoss.ap.api.codelist.EInboundStatus;
 import com.helger.phoss.ap.api.datetime.IAPTimestampManager;
+import com.helger.phoss.ap.api.model.MlsOutcome;
+import com.helger.phoss.ap.api.model.MlsOutcomeIssue;
 import com.helger.phoss.ap.api.spi.IInboundDocumentVerifierSPI;
 import com.helger.phoss.ap.api.spi.IPeppolReceiverCheckSPI;
 import com.helger.phoss.ap.basic.APBasicConfig;
@@ -224,10 +226,22 @@ public class Phase4InboundMessageProcessorSPI implements IPhase4PeppolIncomingSB
       {
         for (final IInboundDocumentVerifierSPI aVerifier : APCoreMetaManager.getAllInboundVerifiers ())
         {
-          if (aVerifier.verifyDocument (sDocumentPath, sDocTypeID, sProcessID).isFailure ())
+          if (aVerifier.verifyInboundDocument (sDocumentPath,
+                                               aPeppolSBD.getDocumentTypeAsIdentifier (),
+                                               aPeppolSBD.getProcessAsIdentifier ()).isFailure ())
           {
             LOGGER.warn (sLogPrefix + "Inbound document verification failed for '" + sSbdhInstanceID + "'");
             aTxMgr.updateStatus (sTxID, EInboundStatus.REJECTED);
+
+            // Send negative MLS (RE) back to C2
+            final var aTx = aTxMgr.getByID (sTxID);
+            if (aTx != null)
+            {
+              final MlsOutcome aOutcome = MlsOutcome.rejection ("Document validation failed",
+                                                                MlsOutcomeIssue.businessRuleViolation ("NA",
+                                                                                                       "Inbound document verification failed"));
+              MlsHandler.triggerSendingInboundResultMls (aTx, aOutcome);
+            }
 
             for (final var aHandler : APCoreMetaManager.getAllNotificationHandlers ())
               aHandler.onInboundVerificationRejection (sTxID, sSbdhInstanceID, "Inbound verification failed");

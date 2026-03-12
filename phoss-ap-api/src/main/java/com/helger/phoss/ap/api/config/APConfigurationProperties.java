@@ -107,6 +107,8 @@ public final class APConfigurationProperties
   public static final boolean VERIFICATION_OUTBOUND_ENABLED_DEFAULT = false;
   public static final String VERIFICATION_INBOUND_ENABLED = "verification.inbound.enabled";
   public static final boolean VERIFICATION_INBOUND_ENABLED_DEFAULT = false;
+  public static final String VERIFICATION_PHORM_URL = "verification.phorm.url";
+  public static final String VERIFICATION_PHORM_TOKEN = "verification.phorm.token";
 
   // MLS
   public static final String MLS_TYPE = "mls.type";

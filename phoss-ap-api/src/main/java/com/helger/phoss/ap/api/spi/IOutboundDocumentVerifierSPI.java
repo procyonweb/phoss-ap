@@ -48,7 +48,7 @@ public interface IOutboundDocumentVerifierSPI
    *         verification failed.
    */
   @NonNull
-  ESuccess verifyDocument (@NonNull @Nonempty String sDocumentPath,
-                           @NonNull IDocumentTypeIdentifier aDocTypeID,
-                           @NonNull IProcessIdentifier aProcessID);
+  ESuccess verifyOutboundDocument (@NonNull @Nonempty String sDocumentPath,
+                                   @NonNull IDocumentTypeIdentifier aDocTypeID,
+                                   @NonNull IProcessIdentifier aProcessID);
 }
