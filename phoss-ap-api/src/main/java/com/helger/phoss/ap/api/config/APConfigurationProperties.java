@@ -19,9 +19,9 @@ package com.helger.phoss.ap.api.config;
 import com.helger.annotation.concurrent.Immutable;
 
 /**
- * Constants for all configuration property keys used throughout phoss-ap. These
- * keys are resolved from the ph-config configuration sources (properties files,
- * environment variables, system properties).
+ * Constants for all configuration property keys used throughout phoss-ap. These keys are resolved
+ * from the ph-config configuration sources (properties files, environment variables, system
+ * properties).
  *
  * @author Philip Helger
  */
@@ -43,7 +43,8 @@ public final class APConfigurationProperties
   // AS4 endpoint
   public static final String PHASE4_ENDPOINT_ADDRESS = "phase4.endpoint.address";
   public static final String PHASE4_API_REQUIREDTOKEN = "phase4.api.requiredtoken";
-  public static final String PHASE4_DUMP_PATH = "phase4.dump.path";
+  public static final String PHASE4_DUMP_MODE = "phase4.dump.mode";
+  public static final String PHASE4_DUMP_MODE_DEFAULT = "direction";
 
   // Connection pooling
   public static final String JDBC_POOLING_MAX_CONNECTIONS = "pooling.max-connections";

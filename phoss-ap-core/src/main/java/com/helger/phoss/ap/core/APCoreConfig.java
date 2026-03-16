@@ -26,15 +26,16 @@ import com.helger.config.fallback.IConfigWithFallback;
 import com.helger.peppol.sbdh.EPeppolMLSType;
 import com.helger.peppol.servicedomain.EPeppolNetwork;
 import com.helger.phoss.ap.api.CPhossAP;
+import com.helger.phoss.ap.api.codelist.EAS4DumpMode;
 import com.helger.phoss.ap.api.codelist.EDuplicateDetectionMode;
 import com.helger.phoss.ap.api.config.APConfigProvider;
 import com.helger.phoss.ap.api.config.APConfigurationProperties;
 
 /**
- * Configuration accessor for core AP settings including Peppol network stage,
- * AS4 phase4 settings, retry and circuit breaker parameters, MLS type,
- * duplicate detection, archival scheduling, and Peppol Reporting schedules. All
- * values are read from the central {@link APConfigProvider} configuration.
+ * Configuration accessor for core AP settings including Peppol network stage, AS4 phase4 settings,
+ * retry and circuit breaker parameters, MLS type, duplicate detection, archival scheduling, and
+ * Peppol Reporting schedules. All values are read from the central {@link APConfigProvider}
+ * configuration.
  *
  * @author Philip Helger
  */
@@ -51,8 +52,8 @@ public final class APCoreConfig
   }
 
   /**
-   * @return The configured Peppol network stage (production or test). May be
-   *         <code>null</code> if not configured.
+   * @return The configured Peppol network stage (production or test). May be <code>null</code> if
+   *         not configured.
    */
   @Nullable
   public static EPeppolNetwork getPeppolStage ()
@@ -62,8 +63,8 @@ public final class APCoreConfig
   }
 
   /**
-   * @return The configured Peppol Seat ID (e.g. {@code "POP000001"}). May be
-   *         <code>null</code> if not configured.
+   * @return The configured Peppol Seat ID (e.g. {@code "POP000001"}). May be <code>null</code> if
+   *         not configured.
    */
   @Nullable
   public static String getPeppolSeatID ()
@@ -72,9 +73,8 @@ public final class APCoreConfig
   }
 
   /**
-   * @return The Peppol Service Provider ID derived from the Seat ID by removing
-   *         the 3-character prefix. May be <code>null</code> if the Seat ID is
-   *         not configured or invalid.
+   * @return The Peppol Service Provider ID derived from the Seat ID by removing the 3-character
+   *         prefix. May be <code>null</code> if the Seat ID is not configured or invalid.
    */
   @Nullable
   public static String getPeppolSPID ()
@@ -84,8 +84,8 @@ public final class APCoreConfig
   }
 
   /**
-   * @return The configured country code of the AP operator (e.g. {@code "AT"}).
-   *         Never <code>null</code>.
+   * @return The configured country code of the AP operator (e.g. {@code "AT"}). Never
+   *         <code>null</code>.
    */
   @NonNull
   public static String getPeppolOwnerCountryCode ()
@@ -95,8 +95,7 @@ public final class APCoreConfig
   }
 
   /**
-   * @return The configured SMP URL for receiver checks. May be
-   *         <code>null</code> if not configured.
+   * @return The configured SMP URL for receiver checks. May be <code>null</code> if not configured.
    */
   @Nullable
   public static String getPeppolSmpUrl ()
@@ -114,8 +113,7 @@ public final class APCoreConfig
   }
 
   /**
-   * @return {@code true} if inbound receiving via the Peppol network is
-   *         enabled.
+   * @return {@code true} if inbound receiving via the Peppol network is enabled.
    */
   public static boolean isReceivingEnabled ()
   {
@@ -124,8 +122,8 @@ public final class APCoreConfig
   }
 
   /**
-   * @return The configured phase4 AS4 endpoint address URL. May be
-   *         <code>null</code> if not configured.
+   * @return The configured phase4 AS4 endpoint address URL. May be <code>null</code> if not
+   *         configured.
    */
   @Nullable
   public static String getPhase4EndpointAddress ()
@@ -134,8 +132,8 @@ public final class APCoreConfig
   }
 
   /**
-   * @return The required API token for phase4 API access. May be
-   *         <code>null</code> if not configured.
+   * @return The required API token for phase4 API access. May be <code>null</code> if not
+   *         configured.
    */
   @Nullable
   public static String getPhase4ApiRequiredToken ()
@@ -144,13 +142,15 @@ public final class APCoreConfig
   }
 
   /**
-   * @return The configured path for dumping AS4 messages. May be
-   *         <code>null</code> if dumping is disabled.
+   * @return The configured AS4 dump mode. Defaults to {@link EAS4DumpMode#DIRECTION}. Never
+   *         <code>null</code>.
    */
-  @Nullable
-  public static String getPhase4DumpPath ()
+  @NonNull
+  public static EAS4DumpMode getPhase4DumpMode ()
   {
-    return _getConfig ().getAsString (APConfigurationProperties.PHASE4_DUMP_PATH);
+    final String sVal = _getConfig ().getAsString (APConfigurationProperties.PHASE4_DUMP_MODE,
+                                                   APConfigurationProperties.PHASE4_DUMP_MODE_DEFAULT);
+    return EAS4DumpMode.getFromIDOrDefault (sVal);
   }
 
   /**
@@ -163,8 +163,7 @@ public final class APCoreConfig
   }
 
   /**
-   * @return The initial backoff duration in milliseconds for outbound sending
-   *         retries.
+   * @return The initial backoff duration in milliseconds for outbound sending retries.
    */
   public static long getRetrySendingInitialBackoffMs ()
   {
@@ -182,8 +181,7 @@ public final class APCoreConfig
   }
 
   /**
-   * @return The maximum backoff duration in milliseconds for outbound sending
-   *         retries.
+   * @return The maximum backoff duration in milliseconds for outbound sending retries.
    */
   public static long getRetrySendingMaxBackoffMs ()
   {
@@ -202,8 +200,7 @@ public final class APCoreConfig
   }
 
   /**
-   * @return The initial backoff duration in milliseconds for inbound forwarding
-   *         retries.
+   * @return The initial backoff duration in milliseconds for inbound forwarding retries.
    */
   @Nonnegative
   public static long getRetryForwardingInitialBackoffMs ()
@@ -223,8 +220,7 @@ public final class APCoreConfig
   }
 
   /**
-   * @return The maximum backoff duration in milliseconds for inbound forwarding
-   *         retries.
+   * @return The maximum backoff duration in milliseconds for inbound forwarding retries.
    */
   @Nonnegative
   public static long getRetryForwardingMaxBackoffMs ()
@@ -234,8 +230,8 @@ public final class APCoreConfig
   }
 
   /**
-   * @return The interval in milliseconds at which the retry scheduler checks
-   *         for transactions to retry.
+   * @return The interval in milliseconds at which the retry scheduler checks for transactions to
+   *         retry.
    */
   @Nonnegative
   public static long getRetrySchedulerIntervalMs ()
@@ -245,8 +241,7 @@ public final class APCoreConfig
   }
 
   /**
-   * @return The number of consecutive failures before the circuit breaker
-   *         opens.
+   * @return The number of consecutive failures before the circuit breaker opens.
    */
   @Nonnegative
   public static int getCircuitBreakerFailureThreshold ()
@@ -256,8 +251,8 @@ public final class APCoreConfig
   }
 
   /**
-   * @return The duration in milliseconds the circuit breaker stays open before
-   *         transitioning to half-open.
+   * @return The duration in milliseconds the circuit breaker stays open before transitioning to
+   *         half-open.
    */
   @Nonnegative
   public static long getCircuitBreakerOpenDurationMs ()
@@ -267,8 +262,8 @@ public final class APCoreConfig
   }
 
   /**
-   * @return The maximum number of attempts allowed in half-open state before
-   *         the circuit breaker closes again.
+   * @return The maximum number of attempts allowed in half-open state before the circuit breaker
+   *         closes again.
    */
   @Nonnegative
   public static int getCircuitBreakerHalfOpenMaxAttempts ()
@@ -296,9 +291,8 @@ public final class APCoreConfig
   }
 
   /**
-   * @return The configured MLS type strategy (e.g. always send, failure only).
-   *         Defaults to {@link EPeppolMLSType#ALWAYS_SEND}. Never
-   *         <code>null</code>.
+   * @return The configured MLS type strategy (e.g. always send, failure only). Defaults to
+   *         {@link EPeppolMLSType#ALWAYS_SEND}. Never <code>null</code>.
    */
   @NonNull
   public static EPeppolMLSType getMlsType ()
@@ -309,9 +303,8 @@ public final class APCoreConfig
   }
 
   /**
-   * @return The configured duplicate detection mode for AS4 message IDs.
-   *         Defaults to {@link EDuplicateDetectionMode#REJECT}. Never
-   *         <code>null</code>.
+   * @return The configured duplicate detection mode for AS4 message IDs. Defaults to
+   *         {@link EDuplicateDetectionMode#REJECT}. Never <code>null</code>.
    */
   @NonNull
   public static EDuplicateDetectionMode getDuplicateDetectionAS4Mode ()
@@ -322,9 +315,8 @@ public final class APCoreConfig
   }
 
   /**
-   * @return The configured duplicate detection mode for SBDH instance IDs.
-   *         Defaults to {@link EDuplicateDetectionMode#REJECT}. Never
-   *         <code>null</code>.
+   * @return The configured duplicate detection mode for SBDH instance IDs. Defaults to
+   *         {@link EDuplicateDetectionMode#REJECT}. Never <code>null</code>.
    */
   @NonNull
   public static EDuplicateDetectionMode getDuplicateDetectionSBDHMode ()
@@ -353,8 +345,7 @@ public final class APCoreConfig
   }
 
   /**
-   * @return {@code true} if startup recovery of in-flight transactions is
-   *         enabled.
+   * @return {@code true} if startup recovery of in-flight transactions is enabled.
    */
   public static boolean isStartupRecoveryEnabled ()
   {

@@ -57,6 +57,7 @@ import com.helger.phoss.ap.basic.APBasicMetaManager;
 import com.helger.phoss.ap.core.APCoreConfig;
 import com.helger.phoss.ap.core.APCoreMetaManager;
 import com.helger.phoss.ap.core.StartupRecovery;
+import com.helger.phoss.ap.core.dump.AS4GroupedExchangeDumper;
 import com.helger.phoss.ap.core.job.ArchivalScheduler;
 import com.helger.phoss.ap.core.job.RetryScheduler;
 import com.helger.phoss.ap.db.APJdbcMetaManager;
@@ -73,10 +74,9 @@ import jakarta.activation.CommandMap;
 import jakarta.servlet.ServletContext;
 
 /**
- * Central servlet initialization and shutdown handler for the phoss AP
- * application. Configures global settings, AS4 and Peppol AS4, initializes all
- * managers, and starts background schedulers on startup. Performs orderly
- * shutdown of all components on application stop.
+ * Central servlet initialization and shutdown handler for the phoss AP application. Configures
+ * global settings, AS4 and Peppol AS4, initializes all managers, and starts background schedulers
+ * on startup. Performs orderly shutdown of all components on application stop.
  *
  * @author Philip Helger
  */
@@ -106,8 +106,8 @@ public class APServletInit
     HttpDebugger.setEnabled (false);
 
     // Sanity check
-    if (CommandMap.getDefaultCommandMap ().createDataContentHandler (CMimeType.MULTIPART_RELATED.getAsString ()) ==
-        null)
+    if (CommandMap.getDefaultCommandMap ()
+                  .createDataContentHandler (CMimeType.MULTIPART_RELATED.getAsString ()) == null)
     {
       throw new IllegalStateException ("No DataContentHandler for MIME Type '" +
                                        CMimeType.MULTIPART_RELATED.getAsString () +
@@ -137,12 +137,25 @@ public class APServletInit
 
     AS4ServerInitializer.initAS4Server ();
 
-    final String sDumpPath = APCoreConfig.getPhase4DumpPath ();
+    final String sDumpPath = AS4Configuration.getDumpBasePath ();
     if (StringHelper.isNotEmpty (sDumpPath))
     {
-      AS4DumpManager.setIncomingDumper (new AS4IncomingDumperFileBased ());
-      AS4DumpManager.setOutgoingDumper (new AS4OutgoingDumperFileBased ());
-      LOGGER.info ("AS4 message dumping enabled to '" + sDumpPath + "'");
+      switch (APCoreConfig.getPhase4DumpMode ())
+      {
+        case DIRECTION ->
+        {
+          AS4DumpManager.setIncomingDumper (new AS4IncomingDumperFileBased ());
+          AS4DumpManager.setOutgoingDumper (new AS4OutgoingDumperFileBased ());
+          LOGGER.info ("AS4 message dumping enabled to '" + sDumpPath + "'");
+        }
+        case GROUPED ->
+        {
+          final AS4GroupedExchangeDumper aDumper = new AS4GroupedExchangeDumper (new File (sDumpPath));
+          AS4DumpManager.setIncomingDumper (aDumper);
+          AS4DumpManager.setOutgoingDumper (aDumper);
+          LOGGER.info ("AS4 grouped message dumping enabled to '" + sDumpPath + "'");
+        }
+      }
     }
   }
 
@@ -249,9 +262,8 @@ public class APServletInit
   }
 
   /**
-   * Initialize the entire phoss AP application including global settings, AS4,
-   * Peppol configuration, all managers, startup recovery, and background
-   * schedulers.
+   * Initialize the entire phoss AP application including global settings, AS4, Peppol
+   * configuration, all managers, startup recovery, and background schedulers.
    *
    * @param aSC
    *        The servlet context. May not be <code>null</code>.
@@ -285,9 +297,8 @@ public class APServletInit
   }
 
   /**
-   * Shut down the phoss AP application by stopping schedulers, closing
-   * managers, shutting down the Peppol Reporting backend, and releasing all
-   * resources.
+   * Shut down the phoss AP application by stopping schedulers, closing managers, shutting down the
+   * Peppol Reporting backend, and releasing all resources.
    */
   public static void shutdown ()
   {
