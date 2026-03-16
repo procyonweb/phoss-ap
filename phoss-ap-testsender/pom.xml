@@ -30,6 +30,17 @@
   <packaging>jar</packaging>
   <name>phoss-ap-testsender</name>
   <description>Standalone test sender for exercising the phoss-ap outbound sending API with XML, prebuilt SBD and PDF documents. Supports single-document and bulk/concurrent modes.</description>
+  <url>https://github.com/phax/phoss-ap/phoss-ap-testsender</url>
+  <inceptionYear>2026</inceptionYear>
+
+  <licenses>
+    <license>
+      <name>Apache 2</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
 
   <dependencyManagement>
     <dependencies>

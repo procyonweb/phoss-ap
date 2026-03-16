@@ -21,8 +21,7 @@ import org.jspecify.annotations.NonNull;
 import com.helger.phoss.ap.api.model.IOutboundTransaction;
 
 /**
- * JSON response DTO representing an outbound transaction with all relevant
- * fields for the REST API.
+ * JSON response DTO representing an outbound transaction with all relevant fields for the REST API.
  *
  * @author Philip Helger
  */
@@ -44,7 +43,7 @@ public class OutboundTransactionResponse
   private String errorDetails;
   private String mlsStatus;
 
-  public OutboundTransactionResponse ()
+  private OutboundTransactionResponse ()
   {}
 
   /**

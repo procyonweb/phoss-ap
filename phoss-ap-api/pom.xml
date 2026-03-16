@@ -30,6 +30,16 @@
   <packaging>jar</packaging>
   <name>phoss-ap-api</name>
   <description>Peppol Access Point - API interfaces and models</description>
+  <url>https://github.com/phax/phoss-ap/phoss-ap-api</url>
+  <inceptionYear>2026</inceptionYear>
+
+  <licenses>
+    <license>
+      <name>Apache 2</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
 
   <dependencies>
     <dependency>

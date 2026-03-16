@@ -30,6 +30,17 @@
   <packaging>jar</packaging>
   <name>phoss-ap-validation</name>
   <description>Peppol Access Point - Document verification via phorm Validation Service</description>
+  <url>https://github.com/phax/phoss-ap/phoss-ap-validation</url>
+  <inceptionYear>2026</inceptionYear>
+
+  <licenses>
+    <license>
+      <name>Apache 2</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
 
   <dependencies>
     <dependency>
