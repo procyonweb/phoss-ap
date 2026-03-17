@@ -46,6 +46,7 @@ import com.helger.phase4.dump.AS4OutgoingDumperFileBased;
 import com.helger.phase4.incoming.AS4ServerInitializer;
 import com.helger.phase4.incoming.mgr.AS4ProfileSelector;
 import com.helger.phase4.mgr.MetaAS4Manager;
+import com.helger.phase4.model.message.MessageHelperMethods;
 import com.helger.phase4.peppol.servlet.Phase4PeppolDefaultReceiverConfiguration;
 import com.helger.phase4.profile.peppol.AS4PeppolProfileRegistarSPI;
 import com.helger.phase4.profile.peppol.PeppolCRLDownloader;
@@ -166,6 +167,8 @@ public class APServletInit
         }
       }
     }
+
+    MessageHelperMethods.setCustomMessageIDSuffix ("phoss-ap");
   }
 
   private static void _initPeppolAS4 ()
