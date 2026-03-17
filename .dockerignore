@@ -5,11 +5,13 @@
 .claude/
 target/
 generated/
+
 *.p12
 *.md
+
 !README.md
-.gitignore
 .dockerignore
 .classpath
+.gitignore
 .project
 application-private.properties
