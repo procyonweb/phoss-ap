@@ -70,9 +70,7 @@ Provided in the Wiki: https://github.com/phax/phoss-ap/wiki
 
 If you like the project, a star on GitHub is always appreciated.
 
-If you need commercial support, please reach out to me by email (philip@helger.com).
-
-If you'd like to sponsor this project, please reach out to me by email (philip@helger.com).
+If you need commercial support or if you'd like to sponsor this project, please reach out to me by email (philip@helger.com).
 
 ---
 
