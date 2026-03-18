@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash
 #
 # Copyright (C) 2026 Philip Helger (www.helger.com)
 # philip[at]helger[dot]com
@@ -16,13 +16,14 @@
 # limitations under the License.
 #
 
-version=0.1.0
+version=0.1.1
 
 echo Docker login
 docker login --username phelger
 
 echo Starting buildx
 docker buildx rm phoss-ap
+set -e
 docker buildx create --name phoss-ap --driver docker-container
 
 docker buildx build --platform=linux/amd64 --push --pull -t phelger/phoss-ap:$version -t phelger/phoss-ap:latest -f ../Dockerfile ..
