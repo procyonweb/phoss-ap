@@ -53,8 +53,10 @@
 
     <!-- External dependency versions -->
     <awssdk.version>2.42.13</awssdk.version>
+    <commons-compression.version>1.26.0</commons-compression.version>
     <failsafe.version>3.3.2</failsafe.version>
     <flyway.version>12.1.0</flyway.version>
+    <jackson.version>3.1.0</jackson.version>
     <jaxb-impl.version>4.0.6</jaxb-impl.version>
     <log4j.version>2.25.3</log4j.version>
     <postgres.version>42.7.10</postgres.version>
@@ -83,6 +85,13 @@
         <scope>import</scope>
       </dependency>
       <dependency>
+        <groupId>com.helger.db</groupId>
+        <artifactId>ph-db-parent-pom</artifactId>
+        <version>${ph-db.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
         <groupId>com.helger.web</groupId>
         <artifactId>ph-web-parent-pom</artifactId>
         <version>${ph-web.version}</version>
@@ -93,6 +102,20 @@
         <groupId>com.helger.peppol</groupId>
         <artifactId>peppol-commons-parent-pom</artifactId>
         <version>${peppol-commons.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.helger.phase4</groupId>
+        <artifactId>phase4-parent-pom</artifactId>
+        <version>${phase4.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.helger.peppol</groupId>
+        <artifactId>peppol-reporting-parent-pom</artifactId>
+        <version>${peppol-reporting.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -146,29 +169,24 @@
 
       <!-- External dependencies -->
       <dependency>
-        <groupId>com.helger.phase4</groupId>
-        <artifactId>phase4-peppol-client</artifactId>
-        <version>${phase4.version}</version>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-compress</artifactId>
+        <version>${commons-compression.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.helger.phase4</groupId>
-        <artifactId>phase4-peppol-servlet</artifactId>
-        <version>${phase4.version}</version>
+        <groupId>com.sun.xml.bind</groupId>
+        <artifactId>jaxb-impl</artifactId>
+        <version>${jaxb-impl.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.helger.peppol</groupId>
-        <artifactId>peppol-reporting</artifactId>
-        <version>${peppol-reporting.version}</version>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
+        <version>${log4j.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.helger.peppol</groupId>
-        <artifactId>peppol-mls</artifactId>
-        <version>${peppol-commons.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.helger.db</groupId>
-        <artifactId>ph-db-jdbc</artifactId>
-        <version>${ph-db.version}</version>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-slf4j2-impl</artifactId>
+        <version>${log4j.version}</version>
       </dependency>
       <dependency>
         <groupId>org.flywaydb</groupId>
@@ -195,20 +213,17 @@
         <artifactId>s3</artifactId>
         <version>${awssdk.version}</version>
       </dependency>
+      
+      <!-- Make sure SpringBoot uses this version -->
       <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-core</artifactId>
-        <version>${log4j.version}</version>
+        <groupId>tools.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <version>${jackson.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-slf4j2-impl</artifactId>
-        <version>${log4j.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.sun.xml.bind</groupId>
-        <artifactId>jaxb-impl</artifactId>
-        <version>${jaxb-impl.version}</version>
+        <groupId>tools.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>${jackson.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
