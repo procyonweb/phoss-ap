@@ -353,6 +353,16 @@ public final class APCoreConfig
   }
 
   /**
+   * @return {@code true} if MLS sending is globally enabled. Defaults to {@code true}.
+   * @since v0.1.2
+   */
+  public static boolean isMlsSendingEnabled ()
+  {
+    return _getConfig ().getAsBoolean (APConfigurationProperties.MLS_SENDING_ENABLED,
+                                       APConfigurationProperties.MLS_SENDING_ENABLED_DEFAULT);
+  }
+
+  /**
    * @return The configured MLS type strategy (e.g. always send, failure only). Defaults to
    *         {@link EPeppolMLSType#ALWAYS_SEND}. Never <code>null</code>.
    */

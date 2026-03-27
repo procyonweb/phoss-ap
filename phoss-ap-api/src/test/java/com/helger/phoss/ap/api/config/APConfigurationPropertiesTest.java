@@ -67,6 +67,7 @@ public final class APConfigurationPropertiesTest
   {
     assertEquals ("peppol.owner.seatid", APConfigurationProperties.PEPPOL_OWNER_SEATID);
     assertEquals ("retry.sending.max-attempts", APConfigurationProperties.RETRY_SENDING_MAX_ATTEMPTS);
+    assertEquals ("mls.sending.enabled", APConfigurationProperties.MLS_SENDING_ENABLED);
     assertEquals ("mls.type", APConfigurationProperties.MLS_TYPE);
   }
 }

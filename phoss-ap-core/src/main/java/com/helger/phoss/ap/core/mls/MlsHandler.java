@@ -82,6 +82,13 @@ public final class MlsHandler
   public static ESuccess triggerSendingInboundResultMls (@NonNull final IInboundTransaction aInboundTx,
                                                          @NonNull final MlsOutcome aOutcome)
   {
+    // Global MLS kill switch
+    if (!APCoreConfig.isMlsSendingEnabled ())
+    {
+      LOGGER.info ("MLS sending is globally disabled - skipping MLS for transaction '" + aInboundTx.getID () + "'");
+      return ESuccess.SUCCESS;
+    }
+
     final IAPTimestampManager aTimestampMgr = APBasicMetaManager.getTimestampMgr ();
     final IInboundTransactionManager aInboundMgr = APJdbcMetaManager.getInboundTransactionMgr ();
     final IOutboundTransactionManager aOutboundMgr = APJdbcMetaManager.getOutboundTransactionMgr ();

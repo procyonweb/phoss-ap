@@ -113,6 +113,8 @@ public final class APConfigurationProperties
   public static final String VERIFICATION_PHORM_TOKEN = "verification.phorm.token";
 
   // MLS
+  public static final String MLS_SENDING_ENABLED = "mls.sending.enabled";
+  public static final boolean MLS_SENDING_ENABLED_DEFAULT = true;
   public static final String MLS_TYPE = "mls.type";
 
   // Reporting
