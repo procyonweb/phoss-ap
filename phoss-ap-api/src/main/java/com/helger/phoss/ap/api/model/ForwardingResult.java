@@ -33,22 +33,25 @@ import com.helger.base.tostring.ToStringGenerator;
 @Immutable
 public final class ForwardingResult implements ISuccessIndicator
 {
-  private static final ForwardingResult SUCCESS = new ForwardingResult (true, null, null, null);
+  private static final ForwardingResult SUCCESS = new ForwardingResult (true, null, null, null, false);
 
   private final boolean m_bSuccess;
   private final String m_sCountryCodeC4;
   private final String m_sErrorCode;
   private final String m_sErrorDetails;
+  private final boolean m_bRetryAllowed;
 
   private ForwardingResult (final boolean bSuccess,
                             @Nullable final String sCountryCodeC4,
                             @Nullable final String sErrorCode,
-                            @Nullable final String sErrorDetails)
+                            @Nullable final String sErrorDetails,
+                            final boolean bRetryAllowed)
   {
     m_bSuccess = bSuccess;
     m_sCountryCodeC4 = sCountryCodeC4;
     m_sErrorCode = sErrorCode;
     m_sErrorDetails = sErrorDetails;
+    m_bRetryAllowed = bRetryAllowed;
   }
 
   /** {@inheritDoc} */
@@ -95,6 +98,15 @@ public final class ForwardingResult implements ISuccessIndicator
     return m_sErrorDetails;
   }
 
+  /**
+   * @return <code>true</code> if retry is allowed on failure, <code>false</code> if the receiver
+   *         explicitly indicated that no retry should be attempted.
+   */
+  public boolean isRetryAllowed ()
+  {
+    return m_bRetryAllowed;
+  }
+
   /** {@inheritDoc} */
   @Override
   public String toString ()
@@ -103,6 +115,7 @@ public final class ForwardingResult implements ISuccessIndicator
                                        .appendIfNotNull ("CountryCodeC4", m_sCountryCodeC4)
                                        .appendIfNotNull ("ErrorCode", m_sErrorCode)
                                        .appendIfNotNull ("ErrorDetails", m_sErrorDetails)
+                                       .append ("RetryAllowed", m_bRetryAllowed)
                                        .getToString ();
   }
 
@@ -125,11 +138,11 @@ public final class ForwardingResult implements ISuccessIndicator
   @NonNull
   public static ForwardingResult success (@Nullable final String sCountryCodeC4)
   {
-    return new ForwardingResult (true, sCountryCodeC4, null, null);
+    return new ForwardingResult (true, sCountryCodeC4, null, null, false);
   }
 
   /**
-   * Create a failure result with error details.
+   * Create a failure result with error details. Retry is allowed by default.
    *
    * @param sErrorCode
    *        Machine-readable error code. May be <code>null</code>.
@@ -140,6 +153,23 @@ public final class ForwardingResult implements ISuccessIndicator
   @NonNull
   public static ForwardingResult failure (@Nullable final String sErrorCode, @Nullable final String sErrorDetails)
   {
-    return new ForwardingResult (false, null, sErrorCode, sErrorDetails);
+    return new ForwardingResult (false, null, sErrorCode, sErrorDetails, true);
+  }
+
+  /**
+   * Create a failure result with error details where retry is explicitly disallowed by the
+   * receiver.
+   *
+   * @param sErrorCode
+   *        Machine-readable error code. May be <code>null</code>.
+   * @param sErrorDetails
+   *        Human-readable error description. May be <code>null</code>.
+   * @return A new failure result with retry disallowed. Never <code>null</code>.
+   */
+  @NonNull
+  public static ForwardingResult failureNoRetry (@Nullable final String sErrorCode,
+                                                 @Nullable final String sErrorDetails)
+  {
+    return new ForwardingResult (false, null, sErrorCode, sErrorDetails, false);
   }
 }

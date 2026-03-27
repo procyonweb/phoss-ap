@@ -123,6 +123,20 @@ public class HttpDocumentForwarder implements IDocumentForwarder
           if (aJsonObject == null)
             yield ForwardingResult.failure ("http_response_error", "Failed to parse response as JSON object");
 
+          // Check if the receiver explicitly disallows retries
+          final String sRetry = aJsonObject.getAsString ("retry");
+          if ("none".equals (sRetry))
+          {
+            final String sErrorMessage = aJsonObject.getAsString ("errorMessage");
+            LOGGER.warn ("Receiver indicated no retry for transaction '" +
+                         aTransaction.getID () +
+                         "'" +
+                         (sErrorMessage != null ? ": " + sErrorMessage : ""));
+            yield ForwardingResult.failureNoRetry ("http_sync_no_retry",
+                                                   sErrorMessage != null ? sErrorMessage
+                                                                         : "Receiver indicated no retry");
+          }
+
           final String sCountryCodeC4 = aJsonObject.getAsString ("countryCodeC4");
           LOGGER.info ("Received C4 Country Code is '" + sCountryCodeC4 + "'");
           yield ForwardingResult.success (sCountryCodeC4);

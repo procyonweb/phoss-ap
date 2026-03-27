@@ -135,18 +135,21 @@ public final class InboundOrchestrator
 
       final int nNewAttemptCount = aTx.getAttemptCount () + 1;
       final int nMaxRetryAttempts = APCoreConfig.getRetryForwardingMaxAttempts ();
-      if (nNewAttemptCount >= nMaxRetryAttempts)
+      if (!aResult.isRetryAllowed () || nNewAttemptCount >= nMaxRetryAttempts)
       {
         // Maximum number of retries are exhausted - we go on "permanently
         // failed"
+        final String sFailureReason = aResult.isRetryAllowed () ? "Max retries (" +
+                                                                  nMaxRetryAttempts +
+                                                                  ") exhausted: " +
+                                                                  aResult.getErrorDetails ()
+                                                                : "Retry disallowed by receiver: " +
+                                                                  aResult.getErrorDetails ();
         aTxMgr.updateStatusAndRetry (aTx.getID (),
                                      EInboundStatus.PERMANENTLY_FAILED,
                                      nNewAttemptCount,
                                      null,
-                                     "Max retries (" +
-                                           nMaxRetryAttempts +
-                                           ") exhausted: " +
-                                           aResult.getErrorDetails ());
+                                     sFailureReason);
 
         // Don't send MLS as response to MLS
         if (!CPhossAP.isMLS (aTx.getDocTypeID (), aTx.getProcessID ()))
@@ -163,7 +166,8 @@ public final class InboundOrchestrator
         for (final var aHandler : APCoreMetaManager.getAllNotificationHandlers ())
           aHandler.onInboundPermanentForwardingFailure (aTx.getID (),
                                                         aTx.getSbdhInstanceID (),
-                                                        "Max retries exhausted");
+                                                        aResult.isRetryAllowed () ? "Max retries exhausted"
+                                                                                  : "Retry disallowed by receiver");
       }
       else
       {
