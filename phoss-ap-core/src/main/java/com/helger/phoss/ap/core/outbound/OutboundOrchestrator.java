@@ -558,13 +558,14 @@ public final class OutboundOrchestrator
         final TrustedCAChecker aAPCAChecker = ePeppolStage.isProduction () ? PeppolTrustedCA.peppolProductionAP ()
                                                                            : PeppolTrustedCA.peppolTestAP ();
 
-        EAS4UserMessageSendResult eResult = null;
         PeppolReportingItem aReportingItem = null;
         try
         {
           // Actual sending using Phase4PeppolSender
           final Phase4PeppolHttpClientSettings aHCS = new Phase4PeppolHttpClientSettings ();
           APBasicConfig.applyHttpProxySettings (aHCS);
+
+          final EAS4UserMessageSendResult eResult;
 
           final Wrapper <Phase4Exception> aCaughtSendingEx = new Wrapper <> ();
           switch (aTx.getSourceType ())
@@ -680,6 +681,7 @@ public final class OutboundOrchestrator
                                                    "'");
               }
 
+              // Start the main builder
               final PeppolUserMessageSBDHBuilder aBuilder;
               aBuilder = Phase4PeppolSender.sbdhBuilder ()
                                            .httpClientFactory (aHCS)
@@ -720,16 +722,22 @@ public final class OutboundOrchestrator
           aSendingSW.stop ();
           aSendingReport.setAS4SendingDurationMillis (aSendingSW.getMillis ());
 
-          if (aCaughtSendingEx.isSet ())
+          if (eResult.isFailure () || aCaughtSendingEx.isSet ())
           {
-            // Some exception occurred in phase4
+            // Maybe some exception occurred in phase4
             final Phase4Exception ex = aCaughtSendingEx.get ();
 
-            LOGGER.error (sRealLogPrefix + "Outbound transaction '" + sTxID + "' could not be sent with phase4", ex);
+            LOGGER.error (sRealLogPrefix +
+                          "Outbound transaction '" +
+                          sTxID +
+                          "' could not be sent with phase4. Result code is " +
+                          eResult,
+                          ex);
 
             aSendingReport.setAS4SendingError ("An error occurred during the phase4 transmission to '" +
                                                sReceiverAPURL +
-                                               "'");
+                                               "'. Result code is " +
+                                               eResult);
             aSendingReport.setAS4SendingException (ex);
             aSendingReport.setSendingSuccess (false);
             aSendingReport.setOverallSuccess (false);
@@ -746,8 +754,7 @@ public final class OutboundOrchestrator
             LOGGER.info (sRealLogPrefix + "Outbound transaction '" + sTxID + "' sent successfully with phase4");
 
             // Sending result may be null
-            final boolean bSendingSuccess = eResult != null && eResult.isSuccess ();
-            aSendingReport.setSendingSuccess (bSendingSuccess);
+            aSendingReport.setSendingSuccess (true);
 
             // Store successful attempt
             final String sAS4ReceiptID = aSendingReport.getAS4ReceivedSignalMsg ().getMessageInfo ().getMessageId ();
@@ -778,7 +785,7 @@ public final class OutboundOrchestrator
             }
 
             // Set as last activity
-            aSendingReport.setOverallSuccess (bSendingSuccess && bReportingItemStored);
+            aSendingReport.setOverallSuccess (bReportingItemStored);
           }
         }
         catch (final Exception ex)
