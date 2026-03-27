@@ -58,12 +58,11 @@ public class InboundForwardingAttemptManagerJdbc extends AbstractAPJdbcManager i
     m_sTableNameName = sTableNamePrefix + "inbound_forwarding_attempt";
   }
 
-  /** {@inheritDoc} */
   @Nullable
-  public String create (@NonNull final String sInboundTransactionID,
-                        @NonNull final EAttemptStatus eAttemptStatus,
-                        @Nullable final String sErrorCode,
-                        @Nullable final String sErrorDetails)
+  private String _create (@NonNull final String sInboundTransactionID,
+                          @NonNull final EAttemptStatus eAttemptStatus,
+                          @Nullable final String sErrorCode,
+                          @Nullable final String sErrorDetails)
   {
     final String sID = createUniqueRowID ();
     final OffsetDateTime aNow = now ();
@@ -86,13 +85,13 @@ public class InboundForwardingAttemptManagerJdbc extends AbstractAPJdbcManager i
   /** {@inheritDoc} */
   public String createSuccess (final String sInboundTransactionID)
   {
-    return create (sInboundTransactionID, EAttemptStatus.SUCCESS, null, null);
+    return _create (sInboundTransactionID, EAttemptStatus.SUCCESS, null, null);
   }
 
   /** {@inheritDoc} */
   public String createFailure (final String sInboundTransactionID, final String sErrorCode, final String sErrorDetails)
   {
-    return create (sInboundTransactionID, EAttemptStatus.FAILED, sErrorCode, sErrorDetails);
+    return _create (sInboundTransactionID, EAttemptStatus.FAILED, sErrorCode, sErrorDetails);
   }
 
   /** {@inheritDoc} */

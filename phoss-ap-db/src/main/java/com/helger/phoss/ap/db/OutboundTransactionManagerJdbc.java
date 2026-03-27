@@ -242,15 +242,17 @@ public class OutboundTransactionManagerJdbc extends AbstractAPJdbcManager implem
   public ESuccess updateMlsStatus (@NonNull final String sID,
                                    @NonNull final EMlsReceptionStatus eMlsStatus,
                                    @Nullable final OffsetDateTime aMlsReceivedDT,
-                                   @Nullable final String sMlsID)
+                                   @Nullable final String sMlsID,
+                                   @Nullable final String sMlsInboundTransactionID)
   {
     final long nRowsAffected = newExecutor ().insertOrUpdateOrDelete ("UPDATE " +
                                                                       m_sTableName +
-                                                                      " SET mls_status=?, mls_received_dt=?, mls_id=?" +
+                                                                      " SET mls_status=?, mls_received_dt=?, mls_id=?, mls_inbound_transaction_id=?" +
                                                                       " WHERE id=?",
                                                                       new ConstantPreparedStatementDataProvider (eMlsStatus.getID (),
                                                                                                                  aMlsReceivedDT,
                                                                                                                  sMlsID,
+                                                                                                                 sMlsInboundTransactionID,
                                                                                                                  sID));
     return ESuccess.valueOf (nRowsAffected == 1);
   }

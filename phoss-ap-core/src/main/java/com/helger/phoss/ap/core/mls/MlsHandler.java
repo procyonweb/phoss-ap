@@ -215,6 +215,8 @@ public final class MlsHandler
    *        The MLS AS4 receiving date time for the SLR. May not be <code>null</code>.
    * @param sMlsID
    *        The MLS document ID received. May not be <code>null</code>.
+   * @param sMlsInboundTransactionID
+   *        The transaction ID of the inbound MLS transaction. May not be <code>null</code>.
    * @return {@link ESuccess}
    */
   @NonNull
@@ -222,7 +224,8 @@ public final class MlsHandler
                                             @NonNull final String sSbdhInstanceID,
                                             @NonNull final EPeppolMLSResponseCode eResponseCode,
                                             @NonNull final OffsetDateTime aMlsAS4ReceivedDT,
-                                            @Nullable final String sMlsID)
+                                            @Nullable final String sMlsID,
+                                            @NonNull final String sMlsInboundTransactionID)
   {
     LOGGER.info (sLogPrefix +
                  "Received MLS response (" +
@@ -247,7 +250,8 @@ public final class MlsHandler
     };
 
     // Store in DB
-    if (aOutboundMgr.updateMlsStatus (aTx.getID (), eMlsStatus, aMlsAS4ReceivedDT, sMlsID).isFailure ())
+    if (aOutboundMgr.updateMlsStatus (aTx.getID (), eMlsStatus, aMlsAS4ReceivedDT, sMlsID, sMlsInboundTransactionID)
+                    .isFailure ())
       return ESuccess.FAILURE;
 
     LOGGER.info (sLogPrefix +

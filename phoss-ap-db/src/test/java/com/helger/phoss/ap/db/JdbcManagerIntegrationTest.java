@@ -371,7 +371,7 @@ public final class JdbcManagerIntegrationTest
     assertNotNull (sID);
 
     final OffsetDateTime aMlsReceivedDT = _now ();
-    assertTrue (aMgr.updateMlsStatus (sID, EMlsReceptionStatus.RECEIVED_AP, aMlsReceivedDT, "mls-msg-001")
+    assertTrue (aMgr.updateMlsStatus (sID, EMlsReceptionStatus.RECEIVED_AP, aMlsReceivedDT, "mls-msg-001", "inbound-mls-tx-001")
                     .isSuccess ());
 
     final IOutboundTransaction aTx = aMgr.getByID (sID);
@@ -379,6 +379,7 @@ public final class JdbcManagerIntegrationTest
     assertEquals (EMlsReceptionStatus.RECEIVED_AP, aTx.getMlsStatus ());
     assertNotNull (aTx.getMlsReceivedDT ());
     assertEquals ("mls-msg-001", aTx.getMlsID ());
+    assertEquals ("inbound-mls-tx-001", aTx.getMlsInboundTransactionID ());
   }
 
   @Test

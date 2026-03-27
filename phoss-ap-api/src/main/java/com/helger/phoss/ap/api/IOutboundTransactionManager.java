@@ -191,13 +191,17 @@ public interface IOutboundTransactionManager
    *        When the MLS response was received. May be <code>null</code>.
    * @param sMlsID
    *        The MLS message ID. May be <code>null</code>.
+   * @param sMlsInboundTransactionID
+   *        The ID of the inbound transaction representing the received MLS message. May be
+   *        <code>null</code>.
    * @return {@link ESuccess}
    */
   @NonNull
   ESuccess updateMlsStatus (@NonNull String sID,
                             @NonNull EMlsReceptionStatus eMlsStatus,
                             @Nullable OffsetDateTime aMlsReceivedDT,
-                            @Nullable String sMlsID);
+                            @Nullable String sMlsID,
+                            @Nullable String sMlsInboundTransactionID);
 
   /**
    * Update the reporting status for a transaction.

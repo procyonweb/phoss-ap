@@ -361,7 +361,8 @@ public class Phase4InboundMessageProcessorSPI implements IPhase4PeppolIncomingSB
                                           sReferencedSbdhInstanceID,
                                           aBuilder.responseCode (),
                                           aAS4Timestamp,
-                                          aBuilder.id ()).isFailure ())
+                                          aBuilder.id (),
+                                          sTxID).isFailure ())
         {
           for (final var aHandler : APCoreMetaManager.getAllNotificationHandlers ())
             aHandler.onInboundMLSCorrelationError (sTxID, sReferencedSbdhInstanceID, aBuilder.responseCode ());
