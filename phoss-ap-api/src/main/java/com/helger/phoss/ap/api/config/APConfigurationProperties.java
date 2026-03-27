@@ -76,7 +76,7 @@ public final class APConfigurationProperties
   public static final String RETRY_SENDING_MAX_ATTEMPTS = "retry.sending.max-attempts";
   public static final int RETRY_SENDING_MAX_ATTEMPTS_DEFAULT = 3;
   public static final String RETRY_SENDING_INITIAL_BACKOFF_MS = "retry.sending.initial-backoff.ms";
-  public static final long RETRY_SENDING_INITIAL_BACKOFF_MS_DEFAULT = 60_000L;
+  public static final long RETRY_SENDING_INITIAL_BACKOFF_MS_DEFAULT = 180_000L;
   public static final String RETRY_SENDING_BACKOFF_MULTIPLIER = "retry.sending.backoff-multiplier";
   public static final double RETRY_SENDING_BACKOFF_MULTIPLIER_DEFAULT = 2.0;
   public static final String RETRY_SENDING_MAX_BACKOFF_MS = "retry.sending.max-backoff.ms";
