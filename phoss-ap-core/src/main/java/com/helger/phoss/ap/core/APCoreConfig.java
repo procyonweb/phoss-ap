@@ -113,6 +113,18 @@ public final class APCoreConfig
   }
 
   /**
+   * @return The configured DNS server hostnames or IP addresses for Peppol NAPTR lookup, as a
+   *         comma-separated string. May be <code>null</code> if not configured (system default DNS
+   *         is used).
+   * @since 0.1.3
+   */
+  @Nullable
+  public static String getPeppolDnsServers ()
+  {
+    return _getConfig ().getAsString (APConfigurationProperties.PEPPOL_DNS_SERVERS);
+  }
+
+  /**
    * @return {@code true} if outbound sending via the Peppol network is enabled.
    */
   public static boolean isSendingEnabled ()

@@ -17,6 +17,8 @@
 package com.helger.phoss.ap.core.servlet;
 
 import java.io.File;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.time.OffsetDateTime;
@@ -72,6 +74,7 @@ import com.helger.security.revocation.ERevocationCheckMode;
 import com.helger.servlet.ServletHelper;
 import com.helger.smpclient.peppol.CachingSMPClientReadOnly;
 import com.helger.smpclient.peppol.SMPClientReadOnly;
+import com.helger.smpclient.url.PeppolNaptrURLProvider;
 import com.helger.web.scope.mgr.WebScopeManager;
 import com.helger.xservlet.requesttrack.RequestTrackerSettings;
 
@@ -187,6 +190,26 @@ public class APServletInit
 
   private static void _initPeppolAS4 ()
   {
+    // Configure global custom DNS servers for Peppol NAPTR lookup if provided
+    {
+      final String sDnsServers = APCoreConfig.getPeppolDnsServers ();
+      if (StringHelper.isNotEmpty (sDnsServers))
+      {
+        // Configure the DNS resolver for NAPTR lookups using sDnsServers
+        LOGGER.info ("Using custom DNS servers '" + sDnsServers + "' for Peppol NAPTR lookup");
+        for (final String sDnsServer : StringHelper.getExploded (',', sDnsServers))
+          try
+          {
+            PeppolNaptrURLProvider.MUTABLE_INSTANCE.customDNSServers ()
+                                                   .addAll (InetAddress.getAllByName (sDnsServer.trim ()));
+          }
+          catch (final UnknownHostException ex)
+          {
+            LOGGER.error ("Failed to resolve custom DNS server '" + sDnsServer + "': " + ex.getMessage ());
+          }
+      }
+    }
+
     // Make sure the download of CRL is using Apache HttpClient and that the
     // provided settings are used. If e.g. a proxy is needed to access outbound
     // resources, it can be configured here
@@ -271,9 +294,11 @@ public class APServletInit
       // To process the message even though the receiver is not registered in
       // our AP
       Phase4PeppolDefaultReceiverConfiguration.setReceiverCheckEnabled (true);
+
       final SMPClientReadOnly aReceiverCheckSMPClient = new CachingSMPClientReadOnly (URLHelper.getAsURI (sSMPURL));
       APBasicConfig.applyHttpProxySettings (aReceiverCheckSMPClient.httpClientSettings ());
       Phase4PeppolDefaultReceiverConfiguration.setSMPClient (aReceiverCheckSMPClient);
+
       Phase4PeppolDefaultReceiverConfiguration.setAS4EndpointURL (sAPURL);
       Phase4PeppolDefaultReceiverConfiguration.setAPCertificate (aAPCert);
       LOGGER.info ("phase4 Peppol receiver checks are enabled");
