@@ -68,4 +68,54 @@ public final class ForwardingResultTest
     assertNull (aResult.getErrorCode ());
     assertNull (aResult.getErrorDetails ());
   }
+
+  @Test
+  public void testSuccessWithCountryCode ()
+  {
+    final ForwardingResult aResult = ForwardingResult.success ("DE");
+    assertTrue (aResult.isSuccess ());
+    assertFalse (aResult.isFailure ());
+    assertTrue (aResult.hasCountryCodeC4 ());
+    assertEquals ("DE", aResult.getCountryCodeC4 ());
+    assertNull (aResult.getErrorCode ());
+    assertNull (aResult.getErrorDetails ());
+  }
+
+  @Test
+  public void testSuccessWithNullCountryCode ()
+  {
+    final ForwardingResult aResult = ForwardingResult.success (null);
+    assertTrue (aResult.isSuccess ());
+    assertFalse (aResult.hasCountryCodeC4 ());
+    assertNull (aResult.getCountryCodeC4 ());
+  }
+
+  @Test
+  public void testSuccessNoCountryCode ()
+  {
+    final ForwardingResult aResult = ForwardingResult.success ();
+    assertFalse (aResult.hasCountryCodeC4 ());
+    assertNull (aResult.getCountryCodeC4 ());
+  }
+
+  @Test
+  public void testFailureRetryAllowed ()
+  {
+    final ForwardingResult aResult = ForwardingResult.failure ("code", "details");
+    assertFalse (aResult.isSuccess ());
+    assertTrue (aResult.isRetryAllowed ());
+  }
+
+  @Test
+  public void testFailureNoRetry ()
+  {
+    final ForwardingResult aResult = ForwardingResult.failureNoRetry ("no_retry_code", "No retry reason");
+    assertFalse (aResult.isSuccess ());
+    assertTrue (aResult.isFailure ());
+    assertFalse (aResult.isRetryAllowed ());
+    assertEquals ("no_retry_code", aResult.getErrorCode ());
+    assertEquals ("No retry reason", aResult.getErrorDetails ());
+    assertFalse (aResult.hasCountryCodeC4 ());
+    assertNull (aResult.getCountryCodeC4 ());
+  }
 }

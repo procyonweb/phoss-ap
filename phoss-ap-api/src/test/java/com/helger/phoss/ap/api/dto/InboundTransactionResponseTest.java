@@ -18,10 +18,22 @@ package com.helger.phoss.ap.api.dto;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.Test;
+
+import com.helger.peppol.mls.EPeppolMLSResponseCode;
+import com.helger.peppol.sbdh.EPeppolMLSType;
+import com.helger.phoss.ap.api.codelist.EInboundStatus;
+import com.helger.phoss.ap.api.codelist.EReportingStatus;
+import com.helger.phoss.ap.api.model.IInboundTransaction;
 
 /**
  * Test class for class {@link InboundTransactionResponse}.
@@ -55,7 +67,7 @@ public final class InboundTransactionResponseTest
   }
 
   @Test
-  public void testSetters ()
+  public void testSettersAndGetters ()
   {
     final InboundTransactionResponse a = new InboundTransactionResponse ();
     a.setID ("id1");
@@ -95,5 +107,181 @@ public final class InboundTransactionResponseTest
     assertTrue (a.isDuplicateAS4 ());
     assertTrue (a.isDuplicateSBDH ());
     assertEquals ("AP", a.getMlsResponseCode ());
+  }
+
+  @Test
+  public void testFromDomainAllFieldsPopulated ()
+  {
+    final OffsetDateTime aNow = OffsetDateTime.of (2026, 3, 29, 10, 0, 0, 0, ZoneOffset.UTC);
+    final OffsetDateTime aCompleted = aNow.plusMinutes (5);
+    final OffsetDateTime aNextRetry = aNow.plusHours (1);
+
+    final IInboundTransaction aTx = _createMock ("tx-1",
+                                                  "inc-1",
+                                                  "C2-SEAT",
+                                                  "C3-SEAT",
+                                                  "CN=Test",
+                                                  "iso6523-actorid-upis::0088:sender",
+                                                  "iso6523-actorid-upis::0088:receiver",
+                                                  "docType-1",
+                                                  "process-1",
+                                                  "/path/doc.xml",
+                                                  1234L,
+                                                  "abc123hash",
+                                                  "as4-msg-1",
+                                                  aNow,
+                                                  "sbdh-inst-1",
+                                                  "AT",
+                                                  "DE",
+                                                  true,
+                                                  false,
+                                                  EInboundStatus.FORWARDED,
+                                                  2,
+                                                  aNow,
+                                                  aCompleted,
+                                                  EReportingStatus.REPORTED,
+                                                  aNextRetry,
+                                                  "some error",
+                                                  "mls-to-1",
+                                                  EPeppolMLSType.ALWAYS_SEND,
+                                                  EPeppolMLSResponseCode.ACCEPTANCE,
+                                                  "mls-out-1");
+
+    final InboundTransactionResponse aResp = InboundTransactionResponse.fromDomain (aTx);
+    assertNotNull (aResp);
+    assertEquals ("tx-1", aResp.getID ());
+    assertEquals ("iso6523-actorid-upis::0088:sender", aResp.getSenderID ());
+    assertEquals ("iso6523-actorid-upis::0088:receiver", aResp.getReceiverID ());
+    assertEquals ("docType-1", aResp.getDocTypeID ());
+    assertEquals ("process-1", aResp.getProcessID ());
+    assertEquals ("as4-msg-1", aResp.getAS4MessageID ());
+    assertEquals ("sbdh-inst-1", aResp.getSbdhInstanceID ());
+    assertEquals ("forwarded", aResp.getStatus ());
+    assertEquals (2, aResp.getAttemptCount ());
+    assertNotNull (aResp.getReceivedDT ());
+    assertNotNull (aResp.getCompletedDT ());
+    assertEquals ("reported", aResp.getReportingStatus ());
+    assertNotNull (aResp.getNextRetryDT ());
+    assertEquals ("some error", aResp.getErrorDetails ());
+    assertEquals ("DE", aResp.getC4CountryCode ());
+    assertTrue (aResp.isDuplicateAS4 ());
+    assertFalse (aResp.isDuplicateSBDH ());
+    assertEquals ("AP", aResp.getMlsResponseCode ());
+  }
+
+  @Test
+  public void testFromDomainNullableFieldsNull ()
+  {
+    final OffsetDateTime aNow = OffsetDateTime.of (2026, 3, 29, 10, 0, 0, 0, ZoneOffset.UTC);
+
+    final IInboundTransaction aTx = _createMock ("tx-2",
+                                                  "inc-2",
+                                                  "C2-SEAT",
+                                                  "C3-SEAT",
+                                                  "CN=Test",
+                                                  "sender",
+                                                  "receiver",
+                                                  "docType",
+                                                  "process",
+                                                  "/path/doc.xml",
+                                                  0L,
+                                                  "hash",
+                                                  "as4-msg-2",
+                                                  aNow,
+                                                  "sbdh-2",
+                                                  "AT",
+                                                  null,
+                                                  false,
+                                                  false,
+                                                  EInboundStatus.RECEIVED,
+                                                  0,
+                                                  aNow,
+                                                  null,
+                                                  EReportingStatus.PENDING,
+                                                  null,
+                                                  null,
+                                                  null,
+                                                  EPeppolMLSType.ALWAYS_SEND,
+                                                  null,
+                                                  null);
+
+    final InboundTransactionResponse aResp = InboundTransactionResponse.fromDomain (aTx);
+    assertNotNull (aResp);
+    assertNull (aResp.getCompletedDT ());
+    assertNull (aResp.getNextRetryDT ());
+    assertNull (aResp.getErrorDetails ());
+    assertNull (aResp.getC4CountryCode ());
+    assertNull (aResp.getMlsResponseCode ());
+    assertFalse (aResp.isDuplicateAS4 ());
+    assertFalse (aResp.isDuplicateSBDH ());
+    assertEquals ("received", aResp.getStatus ());
+    assertEquals ("pending", aResp.getReportingStatus ());
+  }
+
+  @NonNull
+  private static IInboundTransaction _createMock (@NonNull final String sID,
+                                                   @NonNull final String sIncomingID,
+                                                   @NonNull final String sC2SeatID,
+                                                   @NonNull final String sC3SeatID,
+                                                   @NonNull final String sSigningCertCN,
+                                                   @NonNull final String sSenderID,
+                                                   @NonNull final String sReceiverID,
+                                                   @NonNull final String sDocTypeID,
+                                                   @NonNull final String sProcessID,
+                                                   @NonNull final String sDocumentPath,
+                                                   final long nDocumentSize,
+                                                   @NonNull final String sDocumentHash,
+                                                   @NonNull final String sAS4MessageID,
+                                                   @NonNull final OffsetDateTime aAS4Timestamp,
+                                                   @NonNull final String sSbdhInstanceID,
+                                                   @NonNull final String sC1CountryCode,
+                                                   @Nullable final String sC4CountryCode,
+                                                   final boolean bIsDuplicateAS4,
+                                                   final boolean bIsDuplicateSBDH,
+                                                   @NonNull final EInboundStatus eStatus,
+                                                   final int nAttemptCount,
+                                                   @NonNull final OffsetDateTime aReceivedDT,
+                                                   @Nullable final OffsetDateTime aCompletedDT,
+                                                   @NonNull final EReportingStatus eReportingStatus,
+                                                   @Nullable final OffsetDateTime aNextRetryDT,
+                                                   @Nullable final String sErrorDetails,
+                                                   @Nullable final String sMlsTo,
+                                                   @NonNull final EPeppolMLSType eMlsType,
+                                                   @Nullable final EPeppolMLSResponseCode eMlsResponseCode,
+                                                   @Nullable final String sMlsOutboundTransactionID)
+  {
+    return new IInboundTransaction ()
+    {
+      public String getID () { return sID; }
+      public String getIncomingID () { return sIncomingID; }
+      public String getC2SeatID () { return sC2SeatID; }
+      public String getC3SeatID () { return sC3SeatID; }
+      public String getSigningCertCN () { return sSigningCertCN; }
+      public String getSenderID () { return sSenderID; }
+      public String getReceiverID () { return sReceiverID; }
+      public String getDocTypeID () { return sDocTypeID; }
+      public String getProcessID () { return sProcessID; }
+      public String getDocumentPath () { return sDocumentPath; }
+      public long getDocumentSize () { return nDocumentSize; }
+      public String getDocumentHash () { return sDocumentHash; }
+      public String getAS4MessageID () { return sAS4MessageID; }
+      public OffsetDateTime getAS4Timestamp () { return aAS4Timestamp; }
+      public String getSbdhInstanceID () { return sSbdhInstanceID; }
+      public String getC1CountryCode () { return sC1CountryCode; }
+      public String getC4CountryCode () { return sC4CountryCode; }
+      public boolean isDuplicateAS4 () { return bIsDuplicateAS4; }
+      public boolean isDuplicateSBDH () { return bIsDuplicateSBDH; }
+      public EInboundStatus getStatus () { return eStatus; }
+      public int getAttemptCount () { return nAttemptCount; }
+      public OffsetDateTime getReceivedDT () { return aReceivedDT; }
+      public OffsetDateTime getCompletedDT () { return aCompletedDT; }
+      public EReportingStatus getReportingStatus () { return eReportingStatus; }
+      public OffsetDateTime getNextRetryDT () { return aNextRetryDT; }
+      public String getErrorDetails () { return sErrorDetails; }
+      public String getMlsTo () { return sMlsTo; }
+      public EPeppolMLSType getMlsType () { return eMlsType; }
+      public EPeppolMLSResponseCode getMlsResponseCode () { return eMlsResponseCode; }
+      public String getMlsOutboundTransactionID () { return sMlsOutboundTransactionID; }
+    };
   }
 }

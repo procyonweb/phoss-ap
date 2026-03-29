@@ -18,13 +18,18 @@ package com.helger.phoss.ap.api.model;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+
 import org.junit.Test;
 
 import com.helger.peppol.mls.EPeppolMLSResponseCode;
+import com.helger.peppol.mls.EPeppolMLSStatusReasonCode;
+import com.helger.peppol.mls.PeppolMLSBuilder;
 
 /**
  * Test class for class {@link MlsOutcome}.
@@ -53,7 +58,7 @@ public final class MlsOutcomeTest
   }
 
   @Test
-  public void testRejection ()
+  public void testRejectionSingleIssue ()
   {
     final MlsOutcomeIssue aIssue = MlsOutcomeIssue.failureOfDelivery ("Cannot deliver");
     final MlsOutcome a = MlsOutcome.rejection ("Rejected", aIssue);
@@ -62,5 +67,58 @@ public final class MlsOutcomeTest
     assertEquals ("Rejected", a.getResponseText ());
     assertTrue (a.hasIssues ());
     assertEquals (1, a.getIssues ().size ());
+    assertSame (EPeppolMLSStatusReasonCode.FAILURE_OF_DELIVERY, a.getIssues ().get (0).getStatusReasonCode ());
+    assertEquals ("Cannot deliver", a.getIssues ().get (0).getDescription ());
+  }
+
+  @Test
+  public void testRejectionMultipleIssues ()
+  {
+    final MlsOutcomeIssue aIssue1 = MlsOutcomeIssue.businessRuleViolation ("/Invoice/ID", "Missing invoice ID");
+    final MlsOutcomeIssue aIssue2 = MlsOutcomeIssue.syntaxViolation ("/Invoice/IssueDate", "Invalid date format");
+    final MlsOutcome a = MlsOutcome.rejection ("Multiple errors", List.of (aIssue1, aIssue2));
+    assertSame (EPeppolMLSResponseCode.REJECTION, a.getResponseCode ());
+    assertEquals ("Multiple errors", a.getResponseText ());
+    assertTrue (a.hasIssues ());
+    assertEquals (2, a.getIssues ().size ());
+  }
+
+  @Test
+  public void testRejectionIssuesGroupedByErrorField ()
+  {
+    // Two issues with the same error field should be grouped
+    final MlsOutcomeIssue aIssue1 = MlsOutcomeIssue.businessRuleViolation ("/Invoice/ID", "Rule 1 failed");
+    final MlsOutcomeIssue aIssue2 = MlsOutcomeIssue.businessRuleWarning ("/Invoice/ID", "Rule 2 warning");
+    final MlsOutcomeIssue aIssue3 = MlsOutcomeIssue.syntaxViolation ("/Invoice/Amount", "Bad amount");
+    final MlsOutcome a = MlsOutcome.rejection (null, List.of (aIssue1, aIssue2, aIssue3));
+    assertNull (a.getResponseText ());
+    assertTrue (a.hasIssues ());
+    // All 3 issues accessible via flat list
+    assertEquals (3, a.getIssues ().size ());
+  }
+
+  @Test
+  public void testAcceptanceGetIssuesEmpty ()
+  {
+    final MlsOutcome a = MlsOutcome.acceptance ();
+    assertNotNull (a.getIssues ());
+    assertTrue (a.getIssues ().isEmpty ());
+  }
+
+  @Test
+  public void testGetAsMLSBuilder ()
+  {
+    final MlsOutcomeIssue aIssue = MlsOutcomeIssue.failureOfDelivery ("Delivery failed");
+    final MlsOutcome a = MlsOutcome.rejection ("Failed", aIssue);
+    final PeppolMLSBuilder aBuilder = a.getAsMLSBuilder ();
+    assertNotNull (aBuilder);
+  }
+
+  @Test
+  public void testGetAsMLSBuilderAcceptance ()
+  {
+    final MlsOutcome a = MlsOutcome.acceptance ();
+    final PeppolMLSBuilder aBuilder = a.getAsMLSBuilder ();
+    assertNotNull (aBuilder);
   }
 }
