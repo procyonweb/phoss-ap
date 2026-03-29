@@ -30,6 +30,8 @@ import com.helger.base.state.ESuccess;
 import com.helger.base.string.StringHelper;
 import com.helger.base.tostring.ToStringGenerator;
 import com.helger.base.url.URLHelper;
+import com.helger.collection.commons.CommonsLinkedHashMap;
+import com.helger.collection.commons.ICommonsOrderedMap;
 import com.helger.config.fallback.IConfigWithFallback;
 import com.helger.httpclient.HttpClientManager;
 import com.helger.httpclient.HttpClientSettings;
@@ -58,6 +60,7 @@ public class HttpDocumentForwarder implements IDocumentForwarder
   private final EForwardingMode m_eMode;
   private String m_sEndpointURL;
   private final HttpClientSettings m_aHCS = new HttpClientSettings ();
+  private final ICommonsOrderedMap <String, String> m_aCustomHeaders = new CommonsLinkedHashMap <> ();
 
   /**
    * Constructor for creating an HTTP document forwarder with the specified forwarding mode.
@@ -91,6 +94,19 @@ public class HttpDocumentForwarder implements IDocumentForwarder
     }
 
     HttpClientSettingsConfig.assignConfigValues (m_aHCS, aConfig, "forwarding.");
+
+    // Load custom HTTP headers (indexed: forwarding.http.headers.1.name / .value)
+    final String sHeaderPrefix = APConfigurationProperties.FORWARDING_HTTP_HEADERS_PREFIX;
+    for (int nIndex = 1;; nIndex++)
+    {
+      final String sName = aConfig.getAsString (sHeaderPrefix + nIndex + ".name");
+      if (StringHelper.isEmpty (sName))
+        break;
+      final String sValue = aConfig.getAsString (sHeaderPrefix + nIndex + ".value");
+      m_aCustomHeaders.put (sName, sValue != null ? sValue : "");
+      LOGGER.info ("Configured custom forwarding HTTP header '" + sName + "'");
+    }
+
     return ESuccess.SUCCESS;
   }
 
@@ -105,6 +121,10 @@ public class HttpDocumentForwarder implements IDocumentForwarder
       final HttpPost aPost = new HttpPost (m_sEndpointURL);
       aPost.setEntity (new InputStreamEntity (aDocPayloadMgr.openDocumentStreamForRead (aTransaction.getDocumentPath ()),
                                               ContentType.APPLICATION_XML));
+
+      // Apply custom headers (case-insensitive by using setHeader which overwrites existing)
+      for (final var aEntry : m_aCustomHeaders.entrySet ())
+        aPost.setHeader (aEntry.getKey (), aEntry.getValue ());
 
       LOGGER.info ("Forwarding inbound transaction '" +
                    aTransaction.getID () +
@@ -184,6 +204,7 @@ public class HttpDocumentForwarder implements IDocumentForwarder
     return new ToStringGenerator (this).append ("Mode", m_eMode)
                                        .append ("EnpointURL", m_sEndpointURL)
                                        .append ("HCS", m_aHCS)
+                                       .append ("CustomHeaders", m_aCustomHeaders.size ())
                                        .getToString ();
   }
 }

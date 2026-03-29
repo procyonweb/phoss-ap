@@ -69,6 +69,7 @@ public final class APConfigurationProperties
   // Forwarding - HTTP
   public static final String FORWARDING_HTTP_MODE = "forwarding.http.mode";
   public static final String FORWARDING_HTTP_ENDPOINT = "forwarding.http.endpoint";
+  public static final String FORWARDING_HTTP_HEADERS_PREFIX = "forwarding.http.headers.";
 
   // Forwarding - S3
   public static final String FORWARDING_S3_BUCKET = "forwarding.s3.bucket";
