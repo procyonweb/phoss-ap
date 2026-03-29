@@ -149,9 +149,9 @@ public final class APConfigurationProperties
   // Document storage
   public static final String STORAGE_MODE = "storage.mode";
   public static final String STORAGE_INBOUND_PATH = "storage.inbound.path";
-  public static final String STORAGE_INBOUND_PATH_DEFAULT = "/var/phoss-ap/inbound";
+  public static final String STORAGE_INBOUND_PATH_DEFAULT = System.getProperty ("user.home") + "/phoss-ap/inbound";
   public static final String STORAGE_OUTBOUND_PATH = "storage.outbound.path";
-  public static final String STORAGE_OUTBOUND_PATH_DEFAULT = "/var/phoss-ap/outbound";
+  public static final String STORAGE_OUTBOUND_PATH_DEFAULT = System.getProperty ("user.home") + "/phoss-ap/outbound";
 
   // Document storage - S3 (since 0.1.1)
   public static final String STORAGE_S3_REGION = "storage.s3.region";
