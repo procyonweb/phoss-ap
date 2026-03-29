@@ -31,9 +31,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.w3c.dom.Document;
 
+import com.helger.base.io.stream.StreamHelper;
 import com.helger.base.string.StringHelper;
 import com.helger.collection.commons.ICommonsList;
+import com.helger.ddd.DocumentDetails;
 import com.helger.json.JsonValue;
 import com.helger.peppol.sbdh.PeppolSBDHData;
 import com.helger.peppolid.IDocumentTypeIdentifier;
@@ -42,13 +45,15 @@ import com.helger.peppolid.IProcessIdentifier;
 import com.helger.peppolid.factory.IIdentifierFactory;
 import com.helger.phase4.peppol.Phase4PeppolSendingReport;
 import com.helger.phoss.ap.api.IOutboundTransactionManager;
+import com.helger.phoss.ap.api.dto.OutboundS3SubmitRequest;
+import com.helger.phoss.ap.api.dto.OutboundTransactionResponse;
 import com.helger.phoss.ap.api.model.IOutboundTransaction;
 import com.helger.phoss.ap.basic.APBasicMetaManager;
 import com.helger.phoss.ap.core.APCoreConfig;
+import com.helger.phoss.ap.core.ddd.DDDHelper;
 import com.helger.phoss.ap.core.outbound.OutboundOrchestrator;
 import com.helger.phoss.ap.db.APJdbcMetaManager;
-import com.helger.phoss.ap.api.dto.OutboundS3SubmitRequest;
-import com.helger.phoss.ap.api.dto.OutboundTransactionResponse;
+import com.helger.xml.serialize.read.DOMReader;
 
 import jakarta.servlet.http.HttpServletRequest;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -270,6 +275,151 @@ public class OutboundController
       }
 
       // Sending success
+      return ResponseEntity.ok (aSendingReport.getAsJsonString ());
+    }
+  }
+
+  /**
+   * Submit a raw document for outbound sending with automatic document type and process detection
+   * via the DDD (Document Details Determinator) library. The XML payload is analyzed to determine
+   * the Peppol document type and process identifiers automatically.
+   *
+   * @param sSenderID
+   *        The sender participant identifier.
+   * @param sReceiverID
+   *        The receiver participant identifier.
+   * @param sC1CountryCode
+   *        The C1 country code.
+   * @param aServletRequest
+   *        The HTTP servlet request containing the XML document payload.
+   * @param sSbdhInstanceID
+   *        Optional SBDH Instance ID. A random one is generated if not provided.
+   * @param sMlsTo
+   *        Optional MLS "To" address.
+   * @return The {@link Phase4PeppolSendingReport} as JSON on success, or an error response.
+   * @throws Exception
+   *         On unexpected errors.
+   * @since v0.1.4
+   */
+  @PostMapping (value = "/submit-auto/{senderID}/{receiverID}/{c1CountryCode}",
+                produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity <String> submitAutoDetect (@PathVariable ("senderID") final String sSenderID,
+                                                   @PathVariable ("receiverID") final String sReceiverID,
+                                                   @PathVariable ("c1CountryCode") final String sC1CountryCode,
+                                                   @NonNull final HttpServletRequest aServletRequest,
+                                                   @RequestParam (value = "sbdhInstanceID",
+                                                                  required = false) final String sSbdhInstanceID,
+                                                   @RequestParam (value = "mlsTo",
+                                                                  required = false) final String sMlsTo) throws Exception
+  {
+    if (!APCoreConfig.isSendingEnabled ())
+    {
+      LOGGER.info ("Peppol AP sending is disabled");
+      return ResponseEntity.notFound ().build ();
+    }
+
+    final String sLogPrefix = "[SubmitAutoDetect] ";
+    final IIdentifierFactory aIF = APBasicMetaManager.getIdentifierFactory ();
+
+    // Parse sender and receiver
+    IParticipantIdentifier aSenderID = aIF.parseParticipantIdentifier (sSenderID);
+    if (aSenderID == null)
+      aSenderID = aIF.createParticipantIdentifierWithDefaultScheme (sSenderID);
+    if (aSenderID == null)
+    {
+      return ResponseEntity.badRequest ()
+                           .body (JsonValue.create ("Failed to parse the sending participant ID '" + sSenderID + "'")
+                                           .getAsJsonString ());
+    }
+
+    IParticipantIdentifier aReceiverID = aIF.parseParticipantIdentifier (sReceiverID);
+    if (aReceiverID == null)
+      aReceiverID = aIF.createParticipantIdentifierWithDefaultScheme (sReceiverID);
+    if (aReceiverID == null)
+    {
+      return ResponseEntity.badRequest ()
+                           .body (JsonValue.create ("Failed to parse the receiving participant ID '" +
+                                                    sReceiverID +
+                                                    "'").getAsJsonString ());
+    }
+
+    // Read the full payload into memory (needed for both DDD parsing and storage)
+    final byte [] aPayloadBytes;
+    try (final InputStream aIS = aServletRequest.getInputStream ())
+    {
+      aPayloadBytes = StreamHelper.getAllBytes (aIS);
+    }
+    if (aPayloadBytes == null || aPayloadBytes.length == 0)
+      return ResponseEntity.badRequest ().body (JsonValue.create ("The request body is empty").getAsJsonString ());
+
+    // Parse XML
+    final Document aDoc = DOMReader.readXMLDOM (aPayloadBytes);
+    if (aDoc == null)
+    {
+      return ResponseEntity.badRequest ()
+                           .body (JsonValue.create ("The request body is not valid XML").getAsJsonString ());
+    }
+
+    // Auto-detect document type and process via DDD
+    final DocumentDetails aDD = DDDHelper.findDocumentDetails (aDoc.getDocumentElement ());
+    if (aDD == null)
+    {
+      return ResponseEntity.badRequest ()
+                           .body (JsonValue.create ("Unable to determine the document type from the provided XML")
+                                           .getAsJsonString ());
+    }
+
+    final IDocumentTypeIdentifier aDocTypeID = aDD.getDocumentTypeID ();
+    final IProcessIdentifier aProcessID = aDD.getProcessID ();
+
+    if (aDocTypeID == null)
+    {
+      return ResponseEntity.badRequest ()
+                           .body (JsonValue.create ("DDD could not determine the document type identifier")
+                                           .getAsJsonString ());
+    }
+    if (aProcessID == null)
+    {
+      return ResponseEntity.badRequest ()
+                           .body (JsonValue.create ("DDD could not determine the process identifier")
+                                           .getAsJsonString ());
+    }
+
+    LOGGER.info (sLogPrefix +
+                 "DDD detected docTypeID='" +
+                 aDocTypeID.getURIEncoded () +
+                 "', processID='" +
+                 aProcessID.getURIEncoded () +
+                 "'");
+
+    final String sEffectiveSbdhInstanceID = StringHelper.isNotEmpty (sSbdhInstanceID) ? sSbdhInstanceID
+                                                                                      : PeppolSBDHData.createRandomSBDHInstanceIdentifier ();
+
+    // Submit via the standard outbound pipeline
+    try (final InputStream aPayloadIS = new java.io.ByteArrayInputStream (aPayloadBytes))
+    {
+      final IOutboundTransaction aTx = OutboundOrchestrator.submitRawDocument (sLogPrefix,
+                                                                               aSenderID,
+                                                                               aReceiverID,
+                                                                               aDocTypeID,
+                                                                               aProcessID,
+                                                                               sEffectiveSbdhInstanceID,
+                                                                               sC1CountryCode,
+                                                                               aPayloadIS,
+                                                                               sMlsTo,
+                                                                               null,
+                                                                               null,
+                                                                               null,
+                                                                               null);
+      if (aTx == null)
+        return ResponseEntity.badRequest ()
+                             .body (JsonValue.create ("Failed to submit outbound transaction").getAsJsonString ());
+
+      // Perform actual sending
+      final Phase4PeppolSendingReport aSendingReport = OutboundOrchestrator.processPendingOutbound (sLogPrefix, aTx);
+      if (!aSendingReport.isOverallSuccess ())
+        return ResponseEntity.unprocessableContent ().body (aSendingReport.getAsJsonString ());
+
       return ResponseEntity.ok (aSendingReport.getAsJsonString ());
     }
   }
