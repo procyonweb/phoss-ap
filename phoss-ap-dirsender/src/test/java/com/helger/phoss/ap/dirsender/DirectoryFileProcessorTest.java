@@ -38,7 +38,8 @@ import com.helger.json.serialize.JsonReader;
 import com.helger.peppol.sbdh.PeppolSBDHData;
 import com.helger.peppol.sbdh.PeppolSBDHDataReader;
 import com.helger.peppol.testfiles.sbdh.PeppolSBDHTestFiles;
-import com.helger.peppolid.factory.PeppolIdentifierFactory;
+import com.helger.phoss.ap.basic.APBasicMetaManager;
+import com.helger.scope.mock.ScopeTestRule;
 
 /**
  * Test class for {@link DirectoryFileProcessor} — tests the independently testable file operations
@@ -50,6 +51,9 @@ public final class DirectoryFileProcessorTest
 {
   @Rule
   public final TemporaryFolder m_aTempDir = new TemporaryFolder ();
+
+  @Rule
+  public final ScopeTestRule m_aScopeRule = new ScopeTestRule ();
 
   // -- _moveFileToDir tests --
 
@@ -150,7 +154,7 @@ public final class DirectoryFileProcessorTest
     final ClassPathResource aRes = PeppolSBDHTestFiles.getFirstGoodCaseV20 ();
     try (final InputStream aIS = aRes.getInputStream ())
     {
-      final PeppolSBDHData aSbdData = new PeppolSBDHDataReader (PeppolIdentifierFactory.INSTANCE).extractData (aIS);
+      final PeppolSBDHData aSbdData = new PeppolSBDHDataReader (APBasicMetaManager.getIdentifierFactory ()).extractData (aIS);
       assertNotNull (aSbdData);
       assertEquals ("a593a0aa-6ff7-48b0-8906-5534fa5212e0", aSbdData.getInstanceIdentifier ());
     }
@@ -163,7 +167,7 @@ public final class DirectoryFileProcessorTest
     {
       try (final InputStream aIS = aRes.getInputStream ())
       {
-        final PeppolSBDHData aSbdData = new PeppolSBDHDataReader (PeppolIdentifierFactory.INSTANCE).extractData (aIS);
+        final PeppolSBDHData aSbdData = new PeppolSBDHDataReader (APBasicMetaManager.getIdentifierFactory ()).extractData (aIS);
         assertNotNull ("Failed to parse " + aRes.getPath (), aSbdData);
         assertNotNull ("No instance ID in " + aRes.getPath (), aSbdData.getInstanceIdentifier ());
       }
@@ -175,7 +179,7 @@ public final class DirectoryFileProcessorTest
   {
     try (final InputStream aIS = new java.io.ByteArrayInputStream ("<not-an-sbd/>".getBytes (StandardCharsets.UTF_8)))
     {
-      new PeppolSBDHDataReader (PeppolIdentifierFactory.INSTANCE).extractData (aIS);
+      new PeppolSBDHDataReader (APBasicMetaManager.getIdentifierFactory ()).extractData (aIS);
       // If no exception, parsing returned something — that's also acceptable
     }
     catch (final Exception ex)
