@@ -167,6 +167,15 @@ public final class APConfigurationProperties
   public static final String OUTBOUND_S3_ACCESS_KEY_ID = "outbound.s3.access-key-id";
   public static final String OUTBOUND_S3_SECRET_ACCESS_KEY = "outbound.s3.secret-access-key";
 
+  // Directory sender (since 0.1.4)
+  public static final String DIRSENDER_ENABLED = "dirsender.enabled";
+  public static final boolean DIRSENDER_ENABLED_DEFAULT = false;
+  public static final String DIRSENDER_DIRECTORY = "dirsender.directory";
+  public static final String DIRSENDER_SCAN_INTERVAL_MS = "dirsender.scan-interval.ms";
+  public static final long DIRSENDER_SCAN_INTERVAL_MS_DEFAULT = 30_000L;
+  public static final String DIRSENDER_INITIAL_DELAY_MS = "dirsender.initial-delay.ms";
+  public static final long DIRSENDER_INITIAL_DELAY_MS_DEFAULT = 30_000L;
+
   // Management
   public static final String MANAGEMENT_STATUS_ENABLED = "management.status.enabled";
   public static final boolean MANAGEMENT_STATUS_ENABLED_DEFAULT = true;

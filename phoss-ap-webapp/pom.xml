@@ -49,6 +49,10 @@
       <artifactId>phoss-ap-forwarding</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.helger.phoss.ap</groupId>
+      <artifactId>phoss-ap-dirsender</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.helger.peppol</groupId>
       <artifactId>peppol-reporting-backend-sql</artifactId>
     </dependency>

@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.helger.phase4.peppol.servlet.Phase4PeppolAS4Servlet;
 import com.helger.phoss.ap.core.servlet.APServletInit;
+import com.helger.phoss.ap.dirsender.DirectorySenderScheduler;
 import com.helger.phoss.ap.webapp.config.SpringProfileConfigIntegration;
 import com.helger.web.scope.mgr.WebScopeManager;
 
@@ -49,7 +50,10 @@ public class AS4ServletRegistration
   {
     // Do it only once
     if (!WebScopeManager.isGlobalScopePresent ())
+    {
       APServletInit.init (aSC);
+      DirectorySenderScheduler.start ();
+    }
   }
 
   /**
@@ -82,6 +86,7 @@ public class AS4ServletRegistration
     @PreDestroy
     public void destroy ()
     {
+      DirectorySenderScheduler.stop ();
       APServletInit.shutdown ();
     }
   }
