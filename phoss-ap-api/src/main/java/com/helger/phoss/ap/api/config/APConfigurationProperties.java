@@ -78,7 +78,7 @@ public final class APConfigurationProperties
   public static final String FORWARDING_S3_SECRET_ACCESS_KEY = "forwarding.s3.secret-access-key";
   public static final String FORWARDING_S3_KEY_PREFIX = "forwarding.s3.key-prefix";
 
-  // Forwarding - Filesystem (since 0.1.4)
+  // Forwarding - Filesystem (since 0.2.0)
   public static final String FORWARDING_FILESYSTEM_DIRECTORY = "forwarding.filesystem.directory";
   public static final String FORWARDING_FILESYSTEM_LAYOUT = "forwarding.filesystem.layout";
   public static final String FORWARDING_FILESYSTEM_LAYOUT_DEFAULT = "flat";
@@ -173,7 +173,7 @@ public final class APConfigurationProperties
   public static final String OUTBOUND_S3_ACCESS_KEY_ID = "outbound.s3.access-key-id";
   public static final String OUTBOUND_S3_SECRET_ACCESS_KEY = "outbound.s3.secret-access-key";
 
-  // Directory sender (since 0.1.4)
+  // Directory sender (since 0.2.0)
   public static final String DIRSENDER_ENABLED = "dirsender.enabled";
   public static final boolean DIRSENDER_ENABLED_DEFAULT = false;
   public static final String DIRSENDER_DIRECTORY = "dirsender.directory";

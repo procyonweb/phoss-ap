@@ -29,7 +29,7 @@ import com.helger.phoss.ap.api.config.APConfigurationProperties;
  * Configuration accessor for the directory-based SBD sender.
  *
  * @author Philip Helger
- * @since v0.1.4
+ * @since v0.2.0
  */
 @Immutable
 public final class APDirSenderConfig

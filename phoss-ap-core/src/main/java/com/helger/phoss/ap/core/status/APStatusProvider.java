@@ -83,7 +83,7 @@ public final class APStatusProvider
     // Library versions
     aStatusData.add ("version.peppol-commons", CPeppolCommonsVersion.BUILD_VERSION);
     aStatusData.add ("version.phase4", CAS4Version.BUILD_VERSION);
-    // Since 0.1.4
+    // Since 0.2.0
     aStatusData.add ("version.ddd", DDDVersion.getVersionNumber ());
 
     // Peppol

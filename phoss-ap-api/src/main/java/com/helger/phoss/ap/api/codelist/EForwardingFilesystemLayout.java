@@ -28,7 +28,7 @@ import com.helger.base.lang.EnumHelper;
  * directory or in per-transaction subdirectories.
  *
  * @author Philip Helger
- * @since v0.1.4
+ * @since v0.2.0
  */
 public enum EForwardingFilesystemLayout implements IHasID <String>
 {

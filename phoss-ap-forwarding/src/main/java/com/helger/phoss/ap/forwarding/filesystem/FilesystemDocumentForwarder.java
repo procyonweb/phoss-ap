@@ -52,7 +52,7 @@ import com.helger.phoss.ap.basic.APBasicMetaManager;
  * alongside each SBD.
  *
  * @author Philip Helger
- * @since v0.1.4
+ * @since v0.2.0
  */
 public class FilesystemDocumentForwarder implements IDocumentForwarder
 {

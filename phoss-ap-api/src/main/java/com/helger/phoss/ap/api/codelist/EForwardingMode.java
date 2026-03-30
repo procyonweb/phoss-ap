@@ -46,7 +46,7 @@ public enum EForwardingMode implements IHasID <String>
   /** SBD is uploaded to the Receiver Backend via SFTP. */
   SFTP ("sftp"),
   /**
-   * SBD is written to a local directory on the filesystem. Since v0.1.4.
+   * SBD is written to a local directory on the filesystem. Since v0.2.0.
    */
   FILESYSTEM ("filesystem");
 

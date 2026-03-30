@@ -299,7 +299,7 @@ public class OutboundController
    * @return The {@link Phase4PeppolSendingReport} as JSON on success, or an error response.
    * @throws Exception
    *         On unexpected errors.
-   * @since v0.1.4
+   * @since v0.2.0
    */
   @PostMapping (value = "/submit-auto/{senderID}/{receiverID}/{c1CountryCode}",
                 produces = MediaType.APPLICATION_JSON_VALUE)

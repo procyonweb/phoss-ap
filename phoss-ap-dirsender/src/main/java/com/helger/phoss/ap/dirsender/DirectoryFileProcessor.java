@@ -52,7 +52,7 @@ import com.helger.phoss.ap.db.APJdbcMetaManager;
  * outcome.
  *
  * @author Philip Helger
- * @since v0.1.4
+ * @since v0.2.0
  */
 @Immutable
 public final class DirectoryFileProcessor

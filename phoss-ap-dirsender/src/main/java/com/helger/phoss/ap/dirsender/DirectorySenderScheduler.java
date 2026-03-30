@@ -30,7 +30,7 @@ import com.helger.io.file.FileOperationManager;
  * {@code RetryScheduler} with static {@code start()} / {@code stop()} methods.
  *
  * @author Philip Helger
- * @since v0.1.4
+ * @since v0.2.0
  */
 public final class DirectorySenderScheduler
 {

@@ -31,7 +31,7 @@ import com.helger.phoss.ap.core.APCoreMetaManager;
  * processes them. Also cleans up pending files whose DB transactions have reached a final state.
  *
  * @author Philip Helger
- * @since v0.1.4
+ * @since v0.2.0
  */
 final class DirectoryScanTask extends TimerTask
 {

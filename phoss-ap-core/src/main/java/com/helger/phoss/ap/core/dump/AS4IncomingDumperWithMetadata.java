@@ -38,7 +38,7 @@ import com.helger.phase4.incoming.IAS4IncomingMessageMetadata;
  * {@link AS4IncomingHelper#getIncomingMetadataAsJson(IAS4IncomingMessageMetadata)}.
  *
  * @author Philip Helger
- * @since v0.1.4
+ * @since v0.2.0
  */
 public class AS4IncomingDumperWithMetadata extends AS4IncomingDumperFileBased
 {
