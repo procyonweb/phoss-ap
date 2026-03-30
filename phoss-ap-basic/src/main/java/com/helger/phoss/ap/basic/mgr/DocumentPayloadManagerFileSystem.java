@@ -47,6 +47,8 @@ import com.helger.phoss.ap.basic.APBasicConfig;
  */
 public class DocumentPayloadManagerFileSystem implements IDocumentPayloadManager
 {
+  private static final int MAX_UNIQUENESS_TRIES = 1_000;
+
   /**
    * Default constructor.
    */
@@ -161,7 +163,7 @@ public class DocumentPayloadManagerFileSystem implements IDocumentPayloadManager
       {
         aFilePath = new File (aBaseDir, sFilename + "-" + nSuffix + sFileExt);
         nSuffix++;
-        if (nSuffix >= 1_000)
+        if (nSuffix >= MAX_UNIQUENESS_TRIES)
         {
           // Avoid endless loop
           throw new IllegalStateException ("The filename '" +
