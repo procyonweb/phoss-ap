@@ -18,6 +18,8 @@ package com.helger.phoss.ap.api.dto;
 
 import org.jspecify.annotations.NonNull;
 
+import com.helger.json.IJsonObject;
+import com.helger.json.JsonObject;
 import com.helger.phoss.ap.api.model.IInboundTransaction;
 
 /**
@@ -357,5 +359,48 @@ public class InboundTransactionResponse
   public void setMlsResponseCode (final String s)
   {
     mlsResponseCode = s;
+  }
+
+  /**
+   * @return This response as a ph-json {@link IJsonObject}. Never <code>null</code>.
+   */
+  @NonNull
+  public IJsonObject getAsJson ()
+  {
+    final IJsonObject ret = new JsonObject ();
+    if (id != null)
+      ret.add ("id", id);
+    if (senderID != null)
+      ret.add ("senderID", senderID);
+    if (receiverID != null)
+      ret.add ("receiverID", receiverID);
+    if (docTypeID != null)
+      ret.add ("docTypeID", docTypeID);
+    if (processID != null)
+      ret.add ("processID", processID);
+    if (as4MessageID != null)
+      ret.add ("as4MessageID", as4MessageID);
+    if (sbdhInstanceID != null)
+      ret.add ("sbdhInstanceID", sbdhInstanceID);
+    if (status != null)
+      ret.add ("status", status);
+    ret.add ("attemptCount", attemptCount);
+    if (receivedDT != null)
+      ret.add ("receivedDT", receivedDT);
+    if (completedDT != null)
+      ret.add ("completedDT", completedDT);
+    if (reportingStatus != null)
+      ret.add ("reportingStatus", reportingStatus);
+    if (nextRetryDT != null)
+      ret.add ("nextRetryDT", nextRetryDT);
+    if (errorDetails != null)
+      ret.add ("errorDetails", errorDetails);
+    if (c4CountryCode != null)
+      ret.add ("c4CountryCode", c4CountryCode);
+    ret.add ("isDuplicateAS4", isDuplicateAS4);
+    ret.add ("isDuplicateSBDH", isDuplicateSBDH);
+    if (mlsResponseCode != null)
+      ret.add ("mlsResponseCode", mlsResponseCode);
+    return ret;
   }
 }

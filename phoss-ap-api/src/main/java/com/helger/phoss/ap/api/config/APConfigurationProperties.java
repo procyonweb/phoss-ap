@@ -78,6 +78,11 @@ public final class APConfigurationProperties
   public static final String FORWARDING_S3_SECRET_ACCESS_KEY = "forwarding.s3.secret-access-key";
   public static final String FORWARDING_S3_KEY_PREFIX = "forwarding.s3.key-prefix";
 
+  // Forwarding - Filesystem (since 0.1.4)
+  public static final String FORWARDING_FILESYSTEM_DIRECTORY = "forwarding.filesystem.directory";
+  public static final String FORWARDING_FILESYSTEM_LAYOUT = "forwarding.filesystem.layout";
+  public static final String FORWARDING_FILESYSTEM_LAYOUT_DEFAULT = "flat";
+
   // Retry sending
   public static final String RETRY_SENDING_MAX_ATTEMPTS = "retry.sending.max-attempts";
   public static final int RETRY_SENDING_MAX_ATTEMPTS_DEFAULT = 3;

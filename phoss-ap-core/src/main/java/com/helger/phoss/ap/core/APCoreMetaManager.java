@@ -41,6 +41,7 @@ import com.helger.phoss.ap.api.spi.IOutboundDocumentVerifierSPI;
 import com.helger.phoss.ap.api.spi.IPeppolReceiverCheckSPI;
 import com.helger.phoss.ap.basic.APBasicConfig;
 import com.helger.phoss.ap.core.notification.NotificationHandlerManager;
+import com.helger.phoss.ap.forwarding.filesystem.FilesystemDocumentForwarder;
 import com.helger.phoss.ap.forwarding.http.HttpDocumentForwarder;
 import com.helger.phoss.ap.forwarding.s3.S3DocumentForwarder;
 import com.helger.phoss.ap.forwarding.sftp.SftpDocumentForwarder;
@@ -89,6 +90,7 @@ public final class APCoreMetaManager
         case HTTP_POST_SYNC, HTTP_POST_ASYNC -> new HttpDocumentForwarder (eForwardingMode);
         case S3_LINK -> new S3DocumentForwarder ();
         case SFTP -> new SftpDocumentForwarder ();
+        case FILESYSTEM -> new FilesystemDocumentForwarder ();
       };
       if (aForwarder.initFromConfiguration (aConfig).isFailure ())
         throw new InitializationException ("Failed to init forwarder configuration - see logs for details");
