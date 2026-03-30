@@ -60,6 +60,7 @@ public final class DirectoryFileProcessor
   static final String DIR_PENDING = "pending";
   static final String DIR_SUCCESS = "success";
   static final String DIR_ERROR = "error";
+  private static final int MAX_UNIQUENESS_TRIES = 1_000;
 
   private static final Logger LOGGER = LoggerFactory.getLogger (DirectoryFileProcessor.class);
 
@@ -90,6 +91,16 @@ public final class DirectoryFileProcessor
     {
       nSuffix++;
       aTarget = new File (aTargetDir, sBaseName + "-" + nSuffix + sDotExt);
+
+      if (nSuffix >= MAX_UNIQUENESS_TRIES)
+      {
+        // Avoid endless loop
+        throw new IllegalStateException ("The filename '" +
+                                         sBaseName +
+                                         "' exists alreay with too many suffixes (" +
+                                         nSuffix +
+                                         ")");
+      }
     }
 
     if (FileOperationManager.INSTANCE.renameFile (aFile, aTarget).isSuccess ())
