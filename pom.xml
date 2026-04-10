@@ -72,7 +72,7 @@
     <ph-web.version>11.2.5</ph-web.version>
     <ph-oton.version>10.2.2</ph-oton.version>
     <peppol-commons.version>12.4.1</peppol-commons.version>
-    <phive.version>12.0.2</phive.version>
+    <phive.version>12.0.3</phive.version>
     <phase4.version>4.4.2</phase4.version>
     <ddd.version>0.8.5</ddd.version>
     <peppol-reporting.version>4.1.2</peppol-reporting.version>
@@ -195,13 +195,13 @@
       </dependency>
 
       <dependency>
-        <groupId>com.sun.xml.bind</groupId>
+        <groupId>org.glassfish.jaxb</groupId>
         <artifactId>jaxb-core</artifactId>
         <version>${jaxb-impl.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.sun.xml.bind</groupId>
-        <artifactId>jaxb-impl</artifactId>
+        <groupId>org.glassfish.jaxb</groupId>
+        <artifactId>jaxb-runtime</artifactId>
         <version>${jaxb-impl.version}</version>
       </dependency>
 
