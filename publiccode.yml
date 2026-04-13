@@ -9,6 +9,9 @@ releaseDate: "2026-04-12"
 
 platforms:
   - web
+  - windows
+  - mac
+  - linux
 
 developmentStatus: stable
 softwareType: standalone/web
