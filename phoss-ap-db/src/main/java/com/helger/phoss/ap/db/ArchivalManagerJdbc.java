@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.helger.annotation.Nonempty;
 import com.helger.base.enforce.ValueEnforcer;
 import com.helger.base.state.ESuccess;
+import com.helger.base.tostring.ToStringGenerator;
 import com.helger.db.jdbc.callback.ConstantPreparedStatementDataProvider;
 import com.helger.db.jdbc.executor.DBExecutor;
 import com.helger.phoss.ap.api.IArchivalManager;
@@ -129,5 +130,13 @@ public class ArchivalManagerJdbc extends AbstractAPJdbcManager implements IArchi
 
       LOGGER.info ("Archived inbound transaction '" + sID + "'");
     });
+  }
+
+  @Override
+  public String toString ()
+  {
+    return ToStringGenerator.getDerived (super.toString ())
+                            .append ("TableNamePrefix", m_sTableNamePrefix)
+                            .getToString ();
   }
 }

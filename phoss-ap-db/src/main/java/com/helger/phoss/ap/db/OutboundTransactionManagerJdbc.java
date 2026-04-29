@@ -27,6 +27,7 @@ import com.helger.annotation.Nonnegative;
 import com.helger.annotation.style.ReturnsMutableCopy;
 import com.helger.base.enforce.ValueEnforcer;
 import com.helger.base.state.ESuccess;
+import com.helger.base.tostring.ToStringGenerator;
 import com.helger.collection.commons.CommonsArrayList;
 import com.helger.collection.commons.ICommonsList;
 import com.helger.db.jdbc.callback.ConstantPreparedStatementDataProvider;
@@ -337,5 +338,11 @@ public class OutboundTransactionManagerJdbc extends AbstractAPJdbcManager implem
       for (final DBResultRow aRow : aRows)
         ret.add (new OutboundTransactionRow (aRow));
     return ret;
+  }
+
+  @Override
+  public String toString ()
+  {
+    return ToStringGenerator.getDerived (super.toString ()).append ("TableName", m_sTableName).getToString ();
   }
 }

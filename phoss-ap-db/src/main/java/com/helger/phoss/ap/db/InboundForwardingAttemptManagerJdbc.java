@@ -21,6 +21,7 @@ import java.time.OffsetDateTime;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import com.helger.base.tostring.ToStringGenerator;
 import com.helger.collection.commons.CommonsArrayList;
 import com.helger.collection.commons.ICommonsList;
 import com.helger.db.jdbc.callback.ConstantPreparedStatementDataProvider;
@@ -41,7 +42,7 @@ public class InboundForwardingAttemptManagerJdbc extends AbstractAPJdbcManager i
 {
   private static final String COLS = "id, inbound_transaction_id, attempt_dt, attempt_status, error_code, error_details";
 
-  private final String m_sTableNameName;
+  private final String m_sTableName;
 
   /**
    * Constructor.
@@ -55,7 +56,7 @@ public class InboundForwardingAttemptManagerJdbc extends AbstractAPJdbcManager i
                                               @NonNull final String sTableNamePrefix)
   {
     super (aTimestampMgr);
-    m_sTableNameName = sTableNamePrefix + "inbound_forwarding_attempt";
+    m_sTableName = sTableNamePrefix + "inbound_forwarding_attempt";
   }
 
   @Nullable
@@ -68,7 +69,7 @@ public class InboundForwardingAttemptManagerJdbc extends AbstractAPJdbcManager i
     final OffsetDateTime aNow = now ();
 
     final long nRowsAffected = newExecutor ().insertOrUpdateOrDelete ("INSERT INTO " +
-                                                                      m_sTableNameName +
+                                                                      m_sTableName +
                                                                       " (" +
                                                                       COLS +
                                                                       ")" +
@@ -100,7 +101,7 @@ public class InboundForwardingAttemptManagerJdbc extends AbstractAPJdbcManager i
     final ICommonsList <DBResultRow> aRows = newExecutor ().queryAll ("SELECT " +
                                                                       COLS +
                                                                       " FROM " +
-                                                                      m_sTableNameName +
+                                                                      m_sTableName +
                                                                       " WHERE inbound_transaction_id=?" +
                                                                       " ORDER BY attempt_dt",
                                                                       new ConstantPreparedStatementDataProvider (sInboundTransactionID));
@@ -109,5 +110,11 @@ public class InboundForwardingAttemptManagerJdbc extends AbstractAPJdbcManager i
       for (final DBResultRow aRow : aRows)
         ret.add (new InboundForwardingAttemptRow (aRow));
     return ret;
+  }
+
+  @Override
+  public String toString ()
+  {
+    return ToStringGenerator.getDerived (super.toString ()).append ("TableName", m_sTableName).getToString ();
   }
 }

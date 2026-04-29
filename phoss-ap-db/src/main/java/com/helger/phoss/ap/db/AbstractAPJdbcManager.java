@@ -22,6 +22,7 @@ import java.util.UUID;
 import org.jspecify.annotations.NonNull;
 
 import com.helger.annotation.Nonempty;
+import com.helger.base.tostring.ToStringGenerator;
 import com.helger.db.jdbc.mgr.AbstractJDBCEnabledManager;
 import com.helger.phoss.ap.api.datetime.IAPTimestampManager;
 
@@ -52,5 +53,11 @@ public abstract class AbstractAPJdbcManager extends AbstractJDBCEnabledManager
   protected final OffsetDateTime now ()
   {
     return m_aTimestampMgr.getCurrentDateTimeUTC ();
+  }
+
+  @Override
+  public String toString ()
+  {
+    return new ToStringGenerator (this).append ("TimestampMgr", m_aTimestampMgr).getToString ();
   }
 }

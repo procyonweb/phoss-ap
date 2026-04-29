@@ -23,6 +23,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import com.helger.annotation.Nonnegative;
+import com.helger.base.tostring.ToStringGenerator;
 import com.helger.collection.commons.CommonsArrayList;
 import com.helger.collection.commons.ICommonsList;
 import com.helger.db.jdbc.callback.ConstantPreparedStatementDataProvider;
@@ -232,5 +233,15 @@ public class MlsMetricsManagerJdbc extends AbstractAPJdbcManager
                                                                                                                  EAttemptStatus.SUCCESS.getID ()));
 
     return _buildReport (aRows, SLA_MLS2_THRESHOLD);
+  }
+
+  @Override
+  public String toString ()
+  {
+    return ToStringGenerator.getDerived (super.toString ())
+                            .append ("InboundTable", m_sInboundTable)
+                            .append ("OutboundTable", m_sOutboundTable)
+                            .append ("OutboundAttemptTable", m_sOutboundAttemptTable)
+                            .getToString ();
   }
 }

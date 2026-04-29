@@ -21,6 +21,7 @@ import java.time.OffsetDateTime;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import com.helger.base.tostring.ToStringGenerator;
 import com.helger.collection.commons.CommonsArrayList;
 import com.helger.collection.commons.ICommonsList;
 import com.helger.db.jdbc.callback.ConstantPreparedStatementDataProvider;
@@ -42,7 +43,7 @@ public class OutboundSendingAttemptManagerJdbc extends AbstractAPJdbcManager imp
                                      " receipt_message_id, http_status_code, attempt_dt, attempt_status, error_details," +
                                      " sending_report";
 
-  private final String m_sTableNameName;
+  private final String m_sTableName;
 
   /**
    * Constructor.
@@ -56,7 +57,7 @@ public class OutboundSendingAttemptManagerJdbc extends AbstractAPJdbcManager imp
                                             @NonNull final String sTableNamePrefix)
   {
     super (aTimestampMgr);
-    m_sTableNameName = sTableNamePrefix + "outbound_sending_attempt";
+    m_sTableName = sTableNamePrefix + "outbound_sending_attempt";
   }
 
   /** {@inheritDoc} */
@@ -74,7 +75,7 @@ public class OutboundSendingAttemptManagerJdbc extends AbstractAPJdbcManager imp
     final OffsetDateTime aNow = now ();
 
     final long nRowsAffected = newExecutor ().insertOrUpdateOrDelete ("INSERT INTO " +
-                                                                      m_sTableNameName +
+                                                                      m_sTableName +
                                                                       " (" +
                                                                       COLS +
                                                                       ")" +
@@ -117,7 +118,7 @@ public class OutboundSendingAttemptManagerJdbc extends AbstractAPJdbcManager imp
     final ICommonsList <DBResultRow> aRows = newExecutor ().queryAll ("SELECT " +
                                                                       COLS +
                                                                       " FROM " +
-                                                                      m_sTableNameName +
+                                                                      m_sTableName +
                                                                       " WHERE outbound_transaction_id=?" +
                                                                       " ORDER BY attempt_dt",
                                                                       new ConstantPreparedStatementDataProvider (sOutboundTransactionID));
@@ -126,5 +127,11 @@ public class OutboundSendingAttemptManagerJdbc extends AbstractAPJdbcManager imp
       for (final DBResultRow aRow : aRows)
         ret.add (new OutboundSendingAttemptRow (aRow));
     return ret;
+  }
+
+  @Override
+  public String toString ()
+  {
+    return ToStringGenerator.getDerived (super.toString ()).append ("TableName", m_sTableName).getToString ();
   }
 }
