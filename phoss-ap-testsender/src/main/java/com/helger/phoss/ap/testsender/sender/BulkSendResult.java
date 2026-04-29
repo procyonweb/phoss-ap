@@ -22,6 +22,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.NonNull;
+
+import com.helger.annotation.Nonnegative;
+import com.helger.annotation.style.ReturnsMutableCopy;
+
 /**
  * Aggregated result of a bulk send operation.
  */
@@ -44,37 +49,55 @@ public class BulkSendResult
     m_nOverallDurationMs = nOverallDurationMs;
   }
 
-  /** @return all individual send results */
+  /**
+   * @return all individual send results
+   */
+  @Nonnegative
   public List <SendResult> getAllResults ()
   {
     return m_aResults;
   }
 
-  /** @return the total wall-clock duration in milliseconds */
+  /**
+   * @return the total wall-clock duration in milliseconds
+   */
+  @Nonnegative
   public long getOverallDurationMs ()
   {
     return m_nOverallDurationMs;
   }
 
-  /** @return the total number of send attempts */
+  /**
+   * @return the total number of send attempts
+   */
+  @Nonnegative
   public int getTotalCount ()
   {
     return m_aResults.size ();
   }
 
-  /** @return the number of successful sends */
+  /**
+   * @return the number of successful sends
+   */
+  @Nonnegative
   public long getSuccessCount ()
   {
     return m_aResults.stream ().filter (SendResult::isSuccess).count ();
   }
 
-  /** @return the number of failed sends */
+  /**
+   * @return the number of failed sends
+   */
+  @Nonnegative
   public long getFailureCount ()
   {
     return m_aResults.stream ().filter (SendResult::isFailure).count ();
   }
 
-  /** @return the throughput in documents per second */
+  /**
+   * @return the throughput in documents per second
+   */
+  @Nonnegative
   public double getThroughputPerSecond ()
   {
     if (m_nOverallDurationMs <= 0)
@@ -82,25 +105,36 @@ public class BulkSendResult
     return m_aResults.size () * 1000.0 / m_nOverallDurationMs;
   }
 
-  /** @return the minimum individual send duration in milliseconds */
+  /**
+   * @return the minimum individual send duration in milliseconds
+   */
+  @Nonnegative
   public long getMinDurationMs ()
   {
     return m_aResults.stream ().mapToLong (SendResult::getDurationMs).min ().orElse (0);
   }
 
-  /** @return the maximum individual send duration in milliseconds */
+  /**
+   * @return the maximum individual send duration in milliseconds
+   */
+  @Nonnegative
   public long getMaxDurationMs ()
   {
     return m_aResults.stream ().mapToLong (SendResult::getDurationMs).max ().orElse (0);
   }
 
-  /** @return the average individual send duration in milliseconds */
+  /**
+   * @return the average individual send duration in milliseconds
+   */
+  @Nonnegative
   public double getAvgDurationMs ()
   {
     return m_aResults.stream ().mapToLong (SendResult::getDurationMs).average ().orElse (0);
   }
 
-  /** @return the 95th percentile send duration in milliseconds */
+  /**
+   * @return the 95th percentile send duration in milliseconds
+   */
   public long getP95DurationMs ()
   {
     if (m_aResults.isEmpty ())
@@ -111,7 +145,11 @@ public class BulkSendResult
     return aSorted.get (Math.max (0, nIndex)).longValue ();
   }
 
-  /** @return a map of error messages to their occurrence counts */
+  /**
+   * @return a map of error messages to their occurrence counts
+   */
+  @NonNull
+  @ReturnsMutableCopy
   public Map <String, Long> getErrorBreakdown ()
   {
     final Map <String, Long> aMap = new LinkedHashMap <> ();
@@ -125,7 +163,11 @@ public class BulkSendResult
     return aMap;
   }
 
-  /** @return a map of document types to their send counts */
+  /**
+   * @return a map of document types to their send counts
+   */
+  @NonNull
+  @ReturnsMutableCopy
   public Map <String, Long> getCountByDocumentType ()
   {
     final Map <String, Long> aMap = new LinkedHashMap <> ();
