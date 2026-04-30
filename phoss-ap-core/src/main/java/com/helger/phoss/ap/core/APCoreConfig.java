@@ -159,6 +159,19 @@ public final class APCoreConfig
   }
 
   /**
+   * @return {@code true} if certificate revocation soft-fail mode is enabled. When enabled,
+   *         certificate validation succeeds even if the revocation status cannot be determined
+   *         (e.g. due to network errors reaching the CRL or OCSP responder). Maps to
+   *         {@link com.helger.security.revocation.CertificateRevocationCheckerDefaults#setAllowSoftFail(boolean)}.
+   * @since 0.2.4
+   */
+  public static boolean isRevocationSoftFailAllowed ()
+  {
+    return _getConfig ().getAsBoolean (APConfigurationProperties.PEPPOL_REVOCATION_SOFT_FAIL,
+                                       APConfigurationProperties.PEPPOL_REVOCATION_SOFT_FAIL_DEFAULT);
+  }
+
+  /**
    * @return The configured C4 country code determination modes as an ordered list. May be empty if
    *         no automatic determination is configured (only async API reporting). Never
    *         <code>null</code>.

@@ -41,6 +41,9 @@ public final class APConfigurationProperties
   public static final String PEPPOL_RECEIVER_CHECK_MODE = "peppol.receiver-check.mode";
   public static final String PEPPOL_DNS_SERVERS = "peppol.dns.servers";
   public static final String PEPPOL_IDENTIFIER_MODE = "peppol.identifier.mode";
+  // Certificate revocation (since 0.2.4)
+  public static final String PEPPOL_REVOCATION_SOFT_FAIL = "peppol.revocation.soft-fail";
+  public static final boolean PEPPOL_REVOCATION_SOFT_FAIL_DEFAULT = false;
 
   // AS4 endpoint
   public static final String PHASE4_ENDPOINT_ADDRESS = "phase4.endpoint.address";

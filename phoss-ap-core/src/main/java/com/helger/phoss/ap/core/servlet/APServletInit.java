@@ -157,6 +157,9 @@ public class APServletInit
       // Special setup for offline mode
       CertificateRevocationCheckerDefaults.setRevocationCheckMode (ERevocationCheckMode.NONE);
     }
+
+    // Apply global certificate revocation soft-fail flag
+    CertificateRevocationCheckerDefaults.setAllowSoftFail (APCoreConfig.isRevocationSoftFailAllowed ());
   }
 
   private static void _initAS4 ()
