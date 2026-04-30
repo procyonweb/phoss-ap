@@ -216,7 +216,7 @@ public final class OutboundOrchestrator
       for (final IOutboundDocumentVerifierSPI aVerifier : APCoreMetaManager.getAllOutboundVerifiers ())
         if (aVerifier.verifyOutboundDocument (sDocumentPath, aDocTypeID, aProcessID).isFailure ())
         {
-          LOGGER.warn (sLogPrefix + "Outbound document verification failed for SBDH ID‚ '" + sSbdhInstanceID + "'");
+          LOGGER.warn (sLogPrefix + "Outbound document verification failed for SBDH ID '" + sSbdhInstanceID + "'");
           return null;
         }
     }
@@ -317,6 +317,19 @@ public final class OutboundOrchestrator
       final String sTempFile = aTempPathHolder.get ();
       final String sTargetDir = FilenameHelper.getPath (sTempFile);
       sDocumentPath = aDocPayloadMgr.renameFile (sTempFile, sTargetDir, sSbdhInstanceID, ".sbd");
+    }
+
+    // Optional verification
+    if (APCoreConfig.isVerificationOutboundEnabled ())
+    {
+      final IDocumentTypeIdentifier aDocTypeID = aSbdData.getDocumentTypeAsIdentifier ();
+      final IProcessIdentifier aProcessID = aSbdData.getProcessAsIdentifier ();
+      for (final IOutboundDocumentVerifierSPI aVerifier : APCoreMetaManager.getAllOutboundVerifiers ())
+        if (aVerifier.verifyOutboundDocument (sDocumentPath, aDocTypeID, aProcessID).isFailure ())
+        {
+          LOGGER.warn (sLogPrefix + "Outbound document verification failed for SBDH ID '" + sSbdhInstanceID + "'");
+          return null;
+        }
     }
 
     final IOutboundTransactionManager aMgr = APJdbcMetaManager.getOutboundTransactionMgr ();
