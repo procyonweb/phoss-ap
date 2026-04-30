@@ -53,7 +53,7 @@ import com.helger.phase4.model.message.MessageHelperMethods;
 import com.helger.phase4.peppol.servlet.Phase4PeppolDefaultReceiverConfiguration;
 import com.helger.phase4.profile.peppol.AS4PeppolProfileRegistarSPI;
 import com.helger.phase4.profile.peppol.PeppolCRLDownloader;
-import com.helger.phase4.profile.peppol.Phase4PeppolHttpClientSettings;
+import com.helger.phase4.profile.peppol.Phase4PeppolCRLHttpClientSettings;
 import com.helger.phoss.ap.api.CPhossAP;
 import com.helger.phoss.ap.api.codelist.EReceiverCheckMode;
 import com.helger.phoss.ap.api.config.APConfigProvider;
@@ -227,7 +227,7 @@ public class APServletInit
     // provided settings are used. If e.g. a proxy is needed to access outbound
     // resources, it can be configured here
     {
-      final Phase4PeppolHttpClientSettings aHCS = new Phase4PeppolHttpClientSettings ();
+      final Phase4PeppolCRLHttpClientSettings aHCS = new Phase4PeppolCRLHttpClientSettings ();
       APBasicConfig.applyHttpProxySettings (aHCS);
       PeppolCRLDownloader.setAsDefaultCRLCache (aHCS);
     }
@@ -305,6 +305,7 @@ public class APServletInit
     {
       case SMP:
       {
+        // Constant SMP
         final String sSMPURL = APCoreConfig.getPeppolSmpUrl ();
         if (StringHelper.isEmpty (sSMPURL))
           throw new InitializationException ("Receiver check mode 'smp' requires configuration property '" +
@@ -330,6 +331,7 @@ public class APServletInit
       }
       case SML:
       {
+        // Using variable SMPs via dynamic discovery
         final String sAPURL = AS4Configuration.getThisEndpointAddress ();
         if (StringHelper.isEmpty (sAPURL))
           throw new InitializationException ("Receiver check mode 'sml' requires configuration property '" +
