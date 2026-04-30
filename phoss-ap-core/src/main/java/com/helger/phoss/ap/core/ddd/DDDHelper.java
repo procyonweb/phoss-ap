@@ -48,6 +48,7 @@ public final class DDDHelper
     s_aDDD = new DocumentDetailsDeterminator (DDDSyntaxList.getDefaultSyntaxList (),
                                               DDDValueProviderList.getDefaultValueProviderList ());
     s_aDDD.setIdentifierFactory (APBasicMetaManager.getIdentifierFactory ());
+    // Our instance does not need to be able to unwrap envelopes
     LOGGER.info ("DDD (Document Details Determinator) " + DDDVersion.getVersionNumber () + "initialized");
   }
 
